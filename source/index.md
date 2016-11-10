@@ -1,6 +1,10 @@
 ---
 title: Conciliação Stone
 
+language_tabs:
+ - cURL
+ - JSON
+
 search: true
 ---
 

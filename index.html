@@ -11,6 +11,11 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
       <script src="javascripts/all.js" type="text/javascript"></script>
 
+      <script>
+        $(function() {
+          setupLanguages(["shell","json","xml"]);
+        });
+      </script>
   </head>
 
   <body class="index">
@@ -22,6 +27,11 @@
     </a>
     <div class="tocify-wrapper">
       <img src="images/logo.png" />
+        <div class="lang-selector">
+              <a href="#" data-language-name="shell">cURL</a>
+              <a href="#" data-language-name="json">JSON</a>
+              <a href="#" data-language-name="xml">XML</a>
+        </div>
         <div class="search">
           <input type="text" class="search" id="input-search" placeholder="Search">
         </div>
@@ -32,270 +42,50 @@
     <div class="page-wrapper">
       <div class="dark-box"></div>
       <div class="content">
-        <h1 id='conciliao-stone'>Conciliação Stone</h1>
-<p>A Conciliação Stone é uma ferramenta que disponibiliza diariamente aos estabelecimentos, a demonstração das transações realizadas e suas respectivas informações financeiras, aluguel de POS, ocorridos no dia referenciado. Esta ferramenta permite o acompanhamento desde a captura até o pagamento/desconto de cada uma das transações e lançamentos realizados.</p>
+        <h1 id='o-que-'>O que é?</h1><h2 id='conciliao-stone'>Conciliação Stone</h2>
+<p>A <strong>Conciliação Stone</strong> é uma ferramenta que disponibiliza diariamente aos estabelecimentos, a demonstração das transações realizadas e suas respectivas informações financeiras, aluguel de POS, ocorridos no dia referenciado. Esta ferramenta permite o acompanhamento desde a captura até o pagamento/desconto de cada uma das transações e lançamentos realizados.</p>
 
-<p>Com a Conciliação Stone, o lojista consegue visualizar de forma bastante clara, o valor líquido e bruto de cada parcela, o valor líquido e bruto de cancelamento parcial e total, quais parcelas da transação foram antecipadas e qual foi o custo da antecipação de cada parcela, chargebacks a serem descontados, etc.</p>
+<p>Com a <strong>Conciliação Stone</strong>, o lojista consegue visualizar de forma bastante clara, o valor líquido e bruto de cada parcela, o valor líquido e bruto de cancelamento parcial e total, quais parcelas da transação foram antecipadas e qual foi o custo da antecipação de cada parcela, chargebacks a serem descontados, etc.</p>
 
-<p>Tudo isto num mesmo lugar, sem a necessidade de tratar vários arquivos com layouts diferentes. Com a Conciliação Stone, o cliente obtém o arquivo de conciliação diretamente conosco, de maneira segura, através de um Webservice que retorna o arquivo de conciliação.</p>
-<h1 id='o-servio-de-conciliao'>O serviço de conciliação</h1>
+<p>Tudo isto em um mesmo lugar, sem a necessidade de tratar vários arquivos com layouts diferentes. Com a <strong>Conciliação Stone</strong>, o cliente obtém o arquivo de conciliação diretamente conosco, de maneira segura, através de um Webservice que retorna o arquivo de conciliação.</p>
+<h1 id='como-obter-seu-arquivo'>Como obter seu arquivo</h1><h2 id='o-servio-de-conciliao'>O serviço de conciliação</h2>
 <p>O webservice de conciliação consiste em uma requisição HTTP autenticada, utilizando uma camada segura - SSL/TLS, para a obtenção de um arquivo com todos os eventos ocorridos no dia requisitado.</p>
 
 <p>Esse arquivo contém todas as transações que foram capturadas no dia requisitado, ou seja, todas as transações capturadas no dia para o qual a conciliação está sendo gerada. <strong>É importante ressaltar que o arquivo contém apenas as transações que foram capturadas e não as que somente foram autorizadas, uma vez que esse tipo de transação não gera movimento financeiro</strong>.</p>
 
 <p>O arquivo adota o modelo Previsão-Liquidação, diferente do que é praticado no mercado. Isso quer dizer que no Arquivo de Conciliação da Stone, estão presentes informações sobre a previsão de pagamento das transações e dos ajustes (agenda); e informações sobre a liquidação das transações e dos ajustes (extrato). <strong>É importante ressaltar que em prol da maior transparência, as transações canceladas não são tratadas como ajustes</strong>.</p>
 <h2 id='obtendo-o-arquivo'>Obtendo o arquivo</h2>
-<ul>
-<li>Layout v1</li>
-</ul>
-<pre><code class="highlight shell">curl <span class="se">\</span>
--H <span class="s2">"Authorization: affiliation-key"</span> <span class="se">\</span>
--H <span class="s2">"Accept-Encoding: gzip"</span> <span class="se">\</span>
-<span class="s2">"https://conciliation.stone.com.br/conciliation-file/yyyyMMdd"</span>
-</code></pre>
-
-<ul>
-<li>Layout v2</li>
-</ul>
-<pre><code class="highlight shell">curl <span class="se">\</span>
--H <span class="s2">"Authorization: affiliation-key"</span> <span class="se">\</span>
--H <span class="s2">"Accept-Encoding: gzip"</span> <span class="se">\</span>
-<span class="s2">"https://conciliation.stone.com.br/conciliation-file/v2/yyyyMMdd"</span>
-</code></pre>
-
 <p>As requisições devem ser enviadas para o serviço de conciliação utilizando o método <strong>GET</strong> para o endpoint <code class="prettyprint">https://conciliation.stone.com.br/conciliation-file/{dataReferencia}</code> ou <code class="prettyprint">https://conciliation.stone.com.br/conciliation-file/v{numeroversao}/{dataReferencia}</code>, onde <code class="prettyprint">{dataReferencia}</code> é a data em que as transações foram capturadas, no formato yyyyMMdd e {numeroversao} o número da versão do layout desejado.</p>
 
 <p>Por se tratar de informações sigilosas para a empresa, tanto a requisição quanto a resposta trafegam em uma camada segura criptografada e as requisições precisam, necessariamente, estar autenticadas. Essa autenticação consiste no envio de um campo de cabeçalho HTTP <code class="prettyprint">Authorization</code> contendo a chave de afiliação da loja <code class="prettyprint">AffiliationKey</code>.</p>
 
 <p>É possível, ainda, que o volume de operações e eventos seja relativamente grande. Para agilizar a transferência do arquivo, é possível solicitá-lo de forma compactada. Caso seja necessário que o arquivo esteja compactado, o sistema conciliador deve incluir o campo de cabeçalho HTTP <code class="prettyprint">Accept-Encoding: gzip</code> na requisição ao serviço.</p>
-<h1 id='layout-v2'>Layout V2</h1>
-<p>Diferente do layout 1 onde a apresentação é dinâmica e é possível observar o ciclo de vida de uma transação coletando o arquivo em diferentes momentos,
-por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 
 <ul>
-<li>Pedido de arquivo para o dia 24-08-2015 (Layout 1):</li>
+<li>Layout v2</li>
 </ul>
-<pre><code class="highlight xml"><span class="nt">&lt;Conciliation&gt;</span>
-    <span class="nt">&lt;Header&gt;</span>
-        <span class="nt">&lt;GenerationDateTime&gt;</span>20151020150721<span class="nt">&lt;/GenerationDateTime&gt;</span>
-        <span class="nt">&lt;StoneCode&gt;</span>123456789<span class="nt">&lt;/StoneCode&gt;</span>
-        <span class="nt">&lt;LayoutVersion&gt;</span>1<span class="nt">&lt;/LayoutVersion&gt;</span>
-        <span class="nt">&lt;FileId&gt;</span>000111<span class="nt">&lt;/FileId&gt;</span>
-        <span class="nt">&lt;ReferenceDate&gt;</span>20150824<span class="nt">&lt;/ReferenceDate&gt;</span>
-    <span class="nt">&lt;/Header&gt;</span>
-    <span class="nt">&lt;FinancialTransactions&gt;</span>
-        <span class="nt">&lt;Transaction&gt;</span>
-            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20150824182825<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
-            <span class="nt">&lt;OrderReference&gt;</span>1157795<span class="nt">&lt;/OrderReference&gt;</span>
-            <span class="nt">&lt;StoneId&gt;</span>33650014557171<span class="nt">&lt;/StoneId&gt;</span>
-            <span class="nt">&lt;AuthorizationCode&gt;</span>022535<span class="nt">&lt;/AuthorizationCode&gt;</span>
-            <span class="nt">&lt;CaptureDateTime&gt;</span>20150824152839<span class="nt">&lt;/CaptureDateTime&gt;</span>
-            <span class="nt">&lt;Brand&gt;</span>1<span class="nt">&lt;/Brand&gt;</span>
-            <span class="nt">&lt;CardNumber&gt;</span>123456******1122<span class="nt">&lt;/CardNumber&gt;</span>
-            <span class="nt">&lt;SalePlanType&gt;</span>2<span class="nt">&lt;/SalePlanType&gt;</span>
-            <span class="nt">&lt;ProductType&gt;</span>2<span class="nt">&lt;/ProductType&gt;</span>
-            <span class="nt">&lt;NumberOfInstallments&gt;</span>2<span class="nt">&lt;/NumberOfInstallments&gt;</span>
-            <span class="nt">&lt;SerialNumber/&gt;</span>
-            <span class="nt">&lt;CapturedAmount&gt;</span>130.620000<span class="nt">&lt;/CapturedAmount&gt;</span>
-            <span class="nt">&lt;AuthorizedAmount&gt;</span>130.620000<span class="nt">&lt;/AuthorizedAmount&gt;</span>
-            <span class="nt">&lt;AuthorizedCurrencyCode&gt;</span>986<span class="nt">&lt;/AuthorizedCurrencyCode&gt;</span>
-            <span class="nt">&lt;Refund&gt;</span>
-                <span class="nt">&lt;RefundGrossAmount&gt;</span>130.620000<span class="nt">&lt;/RefundGrossAmount&gt;</span>
-                <span class="nt">&lt;RefundAmount&gt;</span>127.628802<span class="nt">&lt;/RefundAmount&gt;</span>
-                <span class="nt">&lt;RefundPaymentDate&gt;</span>20150923<span class="nt">&lt;/RefundPaymentDate&gt;</span>
-                <span class="nt">&lt;RefundDate&gt;</span>20151019<span class="nt">&lt;/RefundDate&gt;</span>
-            <span class="nt">&lt;/Refund&gt;</span>
-            <span class="nt">&lt;Installments&gt;</span>
-                <span class="nt">&lt;Installment&gt;</span>
-                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
-                    <span class="nt">&lt;GrossAmount&gt;</span>65.310000<span class="nt">&lt;/GrossAmount&gt;</span>
-                    <span class="nt">&lt;NetAmount&gt;</span>63.814401<span class="nt">&lt;/NetAmount&gt;</span>
-                    <span class="nt">&lt;PaymentDate&gt;</span>20150923<span class="nt">&lt;/PaymentDate&gt;</span>
-                <span class="nt">&lt;/Installment&gt;</span>
-                <span class="nt">&lt;Installment&gt;</span>
-                    <span class="nt">&lt;InstallmentNumber&gt;</span>2<span class="nt">&lt;/InstallmentNumber&gt;</span>
-                    <span class="nt">&lt;GrossAmount&gt;</span>65.310000<span class="nt">&lt;/GrossAmount&gt;</span>
-                    <span class="nt">&lt;NetAmount&gt;</span>63.814401<span class="nt">&lt;/NetAmount&gt;</span>
-                    <span class="nt">&lt;PaymentDate&gt;</span>20151020<span class="nt">&lt;/PaymentDate&gt;</span>
-                <span class="nt">&lt;/Installment&gt;</span>
-            <span class="nt">&lt;/Installments&gt;</span>
-        <span class="nt">&lt;/Transaction&gt;</span>
-        <span class="nt">&lt;Transaction&gt;</span>
-        ...
+<pre class="highlight shell"><code>
+curl <span class="se">\</span>
+-H <span class="s2">"Authorization: affiliation-key"</span> <span class="se">\</span>
+-H <span class="s2">"Accept-Encoding: gzip"</span> <span class="se">\</span>
+<span class="s2">"https://conciliation.stone.com.br/conciliation-file/v2/yyyyMMdd"</span>
+
 </code></pre>
 
-<ul>
-<li>Pedido do arquivo para o dia 19-10-2015 (Layout 1):</li>
-</ul>
-<pre><code class="highlight xml"><span class="nt">&lt;Conciliation&gt;</span>
-    <span class="nt">&lt;Header&gt;</span>
-        <span class="nt">&lt;GenerationDateTime&gt;</span>20151020150410<span class="nt">&lt;/GenerationDateTime&gt;</span>
-        <span class="nt">&lt;StoneCode&gt;</span>123456789<span class="nt">&lt;/StoneCode&gt;</span>
-        <span class="nt">&lt;LayoutVersion&gt;</span>1<span class="nt">&lt;/LayoutVersion&gt;</span>
-        <span class="nt">&lt;FileId&gt;</span>110011<span class="nt">&lt;/FileId&gt;</span>
-        <span class="nt">&lt;ReferenceDate&gt;</span>20151019<span class="nt">&lt;/ReferenceDate&gt;</span>
-    <span class="nt">&lt;/Header&gt;</span>
-    <span class="nt">&lt;FinancialTransactions&gt;</span>
-        <span class="nt">&lt;Transaction&gt;</span>
-            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20150824182825<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
-            <span class="nt">&lt;OrderReference&gt;</span>1157795<span class="nt">&lt;/OrderReference&gt;</span>
-            <span class="nt">&lt;StoneId&gt;</span>33650014557171<span class="nt">&lt;/StoneId&gt;</span>
-            <span class="nt">&lt;AuthorizationCode&gt;</span>022535<span class="nt">&lt;/AuthorizationCode&gt;</span>
-            <span class="nt">&lt;CaptureDateTime&gt;</span>20150824152839<span class="nt">&lt;/CaptureDateTime&gt;</span>
-            <span class="nt">&lt;Brand&gt;</span>1<span class="nt">&lt;/Brand&gt;</span>
-            <span class="nt">&lt;CardNumber&gt;</span>123456******1122<span class="nt">&lt;/CardNumber&gt;</span>
-            <span class="nt">&lt;SalePlanType&gt;</span>2<span class="nt">&lt;/SalePlanType&gt;</span>
-            <span class="nt">&lt;ProductType&gt;</span>2<span class="nt">&lt;/ProductType&gt;</span>
-            <span class="nt">&lt;NumberOfInstallments&gt;</span>2<span class="nt">&lt;/NumberOfInstallments&gt;</span>
-            <span class="nt">&lt;SerialNumber/&gt;</span>
-            <span class="nt">&lt;CapturedAmount&gt;</span>130.620000<span class="nt">&lt;/CapturedAmount&gt;</span>
-            <span class="nt">&lt;AuthorizedAmount&gt;</span>130.620000<span class="nt">&lt;/AuthorizedAmount&gt;</span>
-            <span class="nt">&lt;AuthorizedCurrencyCode&gt;</span>986<span class="nt">&lt;/AuthorizedCurrencyCode&gt;</span>
-            <span class="nt">&lt;Refund&gt;</span>
-                <span class="nt">&lt;RefundGrossAmount&gt;</span>130.620000<span class="nt">&lt;/RefundGrossAmount&gt;</span>
-                <span class="nt">&lt;RefundAmount&gt;</span>127.628802<span class="nt">&lt;/RefundAmount&gt;</span>
-                <span class="nt">&lt;RefundPaymentDate&gt;</span>20150923<span class="nt">&lt;/RefundPaymentDate&gt;</span>
-                <span class="nt">&lt;RefundDate&gt;</span>20151019<span class="nt">&lt;/RefundDate&gt;</span>
-            <span class="nt">&lt;/Refund&gt;</span>
-            <span class="nt">&lt;Installments&gt;</span>
-                <span class="nt">&lt;Installment&gt;</span>
-                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
-                    <span class="nt">&lt;GrossAmount&gt;</span>65.310000<span class="nt">&lt;/GrossAmount&gt;</span>
-                    <span class="nt">&lt;NetAmount&gt;</span>63.814401<span class="nt">&lt;/NetAmount&gt;</span>
-                    <span class="nt">&lt;PaymentDate&gt;</span>20150923<span class="nt">&lt;/PaymentDate&gt;</span>
-                <span class="nt">&lt;/Installment&gt;</span>
-                <span class="nt">&lt;Installment&gt;</span>
-                    <span class="nt">&lt;InstallmentNumber&gt;</span>2<span class="nt">&lt;/InstallmentNumber&gt;</span>
-                    <span class="nt">&lt;GrossAmount&gt;</span>65.310000<span class="nt">&lt;/GrossAmount&gt;</span>
-                    <span class="nt">&lt;NetAmount&gt;</span>63.814401<span class="nt">&lt;/NetAmount&gt;</span>
-                    <span class="nt">&lt;PaymentDate&gt;</span>20151020<span class="nt">&lt;/PaymentDate&gt;</span>
-                <span class="nt">&lt;/Installment&gt;</span>
-            <span class="nt">&lt;/Installments&gt;</span>
-        <span class="nt">&lt;/Transaction&gt;</span>
-        <span class="nt">&lt;Transaction&gt;</span>
-       ...
-</code></pre>
+<p><aside class="success"> Pré-requisitos:</p>
 
-<ul>
-<li>A transação com o StoneId = 33650014557171, aparece no arquivo do dia 24-08 e no arquivo do dia 19-10, como a transação foi cancelada no dia 19-10, o arquivo do dia 19-10 e o arquivo do dia 24-08 apresentam o campo Refund já que o modelo é dinâmico</li>
-</ul>
+<ol>
 
-<p>O layout 2 segue o modelo de apresentação estático , exibindo as transações como uma &ldquo;foto&rdquo; do momento da transação naquele dia, usando o exemplo anterior:</p>
+<li><b>Conexão com a internet</b></li>
 
-<ul>
-<li>Pedido de arquivo para o dia 24-08-2015 (Layout 2):</li>
-</ul>
-<pre><code class="highlight xml"><span class="nt">&lt;Conciliation&gt;</span>
-    <span class="nt">&lt;Header&gt;</span>
-        <span class="nt">&lt;GenerationDateTime&gt;</span>20151013145131<span class="nt">&lt;/GenerationDateTime&gt;</span>
-        <span class="nt">&lt;StoneCode&gt;</span>123456789<span class="nt">&lt;/StoneCode&gt;</span>
-        <span class="nt">&lt;LayoutVersion&gt;</span>2<span class="nt">&lt;/LayoutVersion&gt;</span>
-        <span class="nt">&lt;FileId&gt;</span>500921<span class="nt">&lt;/FileId&gt;</span>
-        <span class="nt">&lt;ReferenceDate&gt;</span>20150824<span class="nt">&lt;/ReferenceDate&gt;</span>
-    <span class="nt">&lt;/Header&gt;</span>
-    <span class="nt">&lt;FinancialTransactions&gt;</span>
-        <span class="nt">&lt;Transaction&gt;</span>
-            <span class="nt">&lt;Events&gt;</span>
-                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
-                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
-                <span class="nt">&lt;Captures&gt;</span>1<span class="nt">&lt;/Captures&gt;</span>
-                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
-                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
-                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
-            <span class="nt">&lt;/Events&gt;</span>
-            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>33650014557171<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
-            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>1331635<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
-            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20150920030409<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
-            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20150920000415<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
-            <span class="nt">&lt;AccountType&gt;</span>2<span class="nt">&lt;/AccountType&gt;</span>
-            <span class="nt">&lt;InstallmentType&gt;</span>1<span class="nt">&lt;/InstallmentType&gt;</span>
-            <span class="nt">&lt;NumberOfInstallments&gt;</span>10<span class="nt">&lt;/NumberOfInstallments&gt;</span>
-            <span class="nt">&lt;AuthorizedAmount&gt;</span>130.620000<span class="nt">&lt;/AuthorizedAmount&gt;</span>
-            <span class="nt">&lt;CapturedAmount&gt;</span>130.620000<span class="nt">&lt;/CapturedAmount&gt;</span>
-            <span class="nt">&lt;AuthorizationCurrencyCode&gt;</span>986<span class="nt">&lt;/AuthorizationCurrencyCode&gt;</span>
-            <span class="nt">&lt;IssuerAuthorizationCode&gt;</span>040947<span class="nt">&lt;/IssuerAuthorizationCode&gt;</span>
-            <span class="nt">&lt;BrandId&gt;</span>1<span class="nt">&lt;/BrandId&gt;</span>
-            <span class="nt">&lt;CardNumber&gt;</span>422061******2743<span class="nt">&lt;/CardNumber&gt;</span>
-            <span class="nt">&lt;Poi&gt;</span>
-                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
-            <span class="nt">&lt;/Poi&gt;</span>
-            <span class="nt">&lt;Installments&gt;</span>
-                <span class="nt">&lt;Installment&gt;</span>
-                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
-                    <span class="nt">&lt;GrossAmount&gt;</span>65.310000<span class="nt">&lt;/GrossAmount&gt;</span>
-                    <span class="nt">&lt;NetAmount&gt;</span>63.814401<span class="nt">&lt;/NetAmount&gt;</span>
-                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20150923<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
-                <span class="nt">&lt;/Installment&gt;</span>
-                <span class="nt">&lt;Installment&gt;</span>
-                    <span class="nt">&lt;InstallmentNumber&gt;</span>2<span class="nt">&lt;/InstallmentNumber&gt;</span>
-                    <span class="nt">&lt;GrossAmount&gt;</span>65.310000<span class="nt">&lt;/GrossAmount&gt;</span>
-                    <span class="nt">&lt;NetAmount&gt;</span>63.814401<span class="nt">&lt;/NetAmount&gt;</span>
-                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20151020<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
-                <span class="nt">&lt;/Installment&gt;</span>
-            <span class="nt">&lt;/Installments&gt;</span>
-        <span class="nt">&lt;/Transaction&gt;</span>
-        <span class="nt">&lt;Transaction&gt;</span>
-    ...
-</code></pre>
+<li><b>Protocolo de comunicação TLS 1.2</b></li>
 
-<ul>
-<li>Pedido do arquivo para o dia 19-10-2015 (Layout 2):</li>
-</ul>
-<pre><code class="highlight xml"><span class="nt">&lt;Conciliation&gt;</span>
-    <span class="nt">&lt;Header&gt;</span>
-        <span class="nt">&lt;GenerationDateTime&gt;</span>20151013145131<span class="nt">&lt;/GenerationDateTime&gt;</span>
-        <span class="nt">&lt;StoneCode&gt;</span>123456789<span class="nt">&lt;/StoneCode&gt;</span>
-        <span class="nt">&lt;LayoutVersion&gt;</span>2<span class="nt">&lt;/LayoutVersion&gt;</span>
-        <span class="nt">&lt;FileId&gt;</span>500921<span class="nt">&lt;/FileId&gt;</span>
-        <span class="nt">&lt;ReferenceDate&gt;</span>20151910<span class="nt">&lt;/ReferenceDate&gt;</span>
-    <span class="nt">&lt;/Header&gt;</span>
-    <span class="nt">&lt;FinancialTransactions&gt;</span>
-        <span class="nt">&lt;Transaction&gt;</span>
-            <span class="nt">&lt;Events&gt;</span>
-                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
-                <span class="nt">&lt;Cancellations&gt;</span>1<span class="nt">&lt;/Cancellations&gt;</span>
-                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
-                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
-                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
-                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
-            <span class="nt">&lt;/Events&gt;</span>
-            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>33650014557171<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
-            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>1157795<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
-            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20150824155931<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
-            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20150824125935<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
-            <span class="nt">&lt;Poi&gt;</span>
-                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
-            <span class="nt">&lt;/Poi&gt;</span>
-            <span class="nt">&lt;Cancellations&gt;</span>
-                <span class="nt">&lt;Cancellation&gt;</span>
-                    <span class="nt">&lt;OperationKey&gt;</span>3635000017434024<span class="nt">&lt;/OperationKey&gt;</span>
-                    <span class="nt">&lt;CancellationDateTime&gt;</span>20150910034340<span class="nt">&lt;/CancellationDateTime&gt;</span>
-                    <span class="nt">&lt;ReturnedAmount&gt;</span>130.620000<span class="nt">&lt;/ReturnedAmount&gt;</span>
-                    <span class="nt">&lt;Billing&gt;</span>
-                        <span class="nt">&lt;ChargedAmount&gt;</span>127.628802<span class="nt">&lt;/ChargedAmount&gt;</span>
-                        <span class="nt">&lt;PrevisionChargeDate&gt;</span>20150911<span class="nt">&lt;/PrevisionChargeDate&gt;</span>
-                    <span class="nt">&lt;/Billing&gt;</span>
-                <span class="nt">&lt;/Cancellation&gt;</span>
-            <span class="nt">&lt;/Cancellations&gt;</span>
-        <span class="nt">&lt;/Transaction&gt;</span>
-        <span class="nt">&lt;Transaction&gt;</span>
-    ...
-</code></pre>
+<li><b>AffiliationKey (AK)</b></li>
 
-<ul>
-<li>A transação com o StoneId = 33650014557171, aparece no arquivo do dia 24-08 e no arquivo do dia 19-10, como a transação foi cancelada no dia 19-10, o arquivo do dia 19-10 apresenta o campo Cancellations já que o modelo é estático</li>
-</ul>
-<h2 id='o-fluxo'>O Fluxo</h2>
-<p>Quando uma transação é realizada, um nó <em>Transaction</em> referente a ela aparecerá sob <em>FinancialTransactions</em> no arquivo de conciliação desse dia com um evento <em>Captured</em> em <em>Event</em>. Se essa transação for modificada (ChargeBack, Cancelamento, Reapresentação de ChargeBack) ainda nesse dia um evento relacionado a essa modificação será incluido em <em>Event</em>.</p>
+</ol>
 
-<p>Se a transação sofrer qualquer modificação em um dia diferente do dia da captura a transação aparecerá novamente sob <em>FinancialTransactions</em> desse dia com um evento relativo a modificação.</p>
-
-<p>No dia em que essa transação for efetivamente paga ao lojista, um nó <em>Transaction</em> aparecerá sob <em>FinancialTransactionsAccounts</em>, e um nó <em>Payment</em> referente ao pagamento dessa transação em <em>Payments</em> no arquivo de conciliação desse dia.</p>
-
-<p>O Fluxo é semelhante para os Eventos financeiros, porém esses ficam sob <em>FinancialEvents</em> e <em>FinancialEventsAccounts</em></p>
-
-<p>Portanto o arquivo de conciliação mostra tanto as transações pagas quanto as realizadas no dia referido</p>
-<h2 id='o-arquivo'>O Arquivo</h2><h3 id='conciliation'>Conciliation</h3>
+<p></aside></p>
+<h1 id='o-arquivo'>O Arquivo</h1><h3 id='conciliation'>Conciliation</h3>
 <p>Nó principal do arquivo de conciliação</p>
 
 <table><thead>
@@ -350,7 +140,7 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 </tr>
 </tbody></table>
 <h3 id='header'>Header</h3>
-<p>Nó filho de Conciliation que contém as informações referentes à loja e ao arquivo, como identificação do lojista, data de geração do arquivo, etc.</p>
+<p>Descrição dos atributos dentro de <strong>Header</strong></p>
 
 <table><thead>
 <tr>
@@ -392,21 +182,13 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 </tr>
 </tbody></table>
 <h3 id='financialtransactions'>FinancialTransactions</h3>
-<p>Nó filho de Conciliation, container de Transaction, que contém as transações capturadas e ou canceladas ocorridas no dia de referência do arquivo.</p>
+<p>Descrição dos Containers e atributos dentro de <em>FinancialTransactions</em>*.</p>
 
-<table><thead>
-<tr>
-<th>Elemento</th>
-<th>Descrição</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>Transaction</td>
-<td>Contém informações referentes à transação, como valor total da transação, número de parcelas da transação, etc.</td>
-</tr>
-</tbody></table>
-<h3 id='t-idtransactiontransactiont'><t id="Transaction">Transaction</t></h3>
-<p>Nó filho de FinancialTransactions que contém as informações referentes à transação, como valor total da transação, número de parcelas da transação, etc.</p>
+<ul>
+<li>Contém uma lista de <strong>Transaction</strong></li>
+</ul>
+<h3 id='transaction'>Transaction</h3>
+<p>Nó filho de <strong>FinancialTransactions</strong> que contém as informações referentes à transação, como valor total da transação, número de parcelas da transação, etc.</p>
 
 <table><thead>
 <tr>
@@ -417,7 +199,7 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 </tr>
 </thead><tbody>
 <tr>
-<td>Events</td>
+<td><a href="#Events">Events</a></td>
 <td>Container</td>
 <td>######</td>
 <td>Contém contadores dos eventos da transação no dia de referência do arquivo.</td>
@@ -447,61 +229,67 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>Datetime da captura (Formato: aaaammddHHmmss) no horario local da adquirente</td>
 </tr>
 <tr>
-<td><a href="#ProductType">AccountType</a></td>
+<td>International*</td>
+<td>Bool</td>
+<td>#</td>
+<td>Indica se é um cartão internacional (True/False)</td>
+</tr>
+<tr>
+<td><a href="#ProductType">AccountType*</a></td>
 <td>Alfa</td>
 <td>4</td>
 <td>Tipo de conta utilizada na transação crédito, débito, etc&hellip;*</td>
 </tr>
 <tr>
-<td><a href="#SalePlanType">InstallmentType</a></td>
+<td><a href="#SalePlanType">InstallmentType*</a></td>
 <td>Alfa</td>
 <td>60</td>
 <td>Tipo de parcelamento utilizado na transação lojista/emissor*</td>
 </tr>
 <tr>
-<td>NumberOfInstallments</td>
+<td>NumberOfInstallments*</td>
 <td>Num</td>
 <td>4</td>
 <td>Número de parcelas*</td>
 </tr>
 <tr>
-<td>AuthorizedAmount</td>
+<td>AuthorizedAmount*</td>
 <td>Float</td>
 <td>20</td>
 <td>Valor autorizado*</td>
 </tr>
 <tr>
-<td>CapturedAmount</td>
+<td>CapturedAmount*</td>
 <td>Float</td>
 <td>20</td>
 <td>Valor capturado*</td>
 </tr>
 <tr>
-<td>CanceledAmount</td>
+<td>CanceledAmount*</td>
 <td>Float</td>
 <td>20</td>
 <td>Total cancelado*</td>
 </tr>
 <tr>
-<td>AuthorizationCurrencyCode</td>
+<td>AuthorizationCurrencyCode*</td>
 <td>Num</td>
 <td>4</td>
 <td>Código da moeda*</td>
 </tr>
 <tr>
-<td>IssuerAuthorizationCode</td>
+<td>IssuerAuthorizationCode*</td>
 <td>Num</td>
 <td>6</td>
 <td>Código da autorização fornecido pelo emissor.*</td>
 </tr>
 <tr>
-<td><a href="#Brand">BrandId</a></td>
+<td><a href="#Brand">BrandId*</a></td>
 <td>Num</td>
 <td>2</td>
 <td>Identificador da bandeira do cartão*</td>
 </tr>
 <tr>
-<td>CardNumber</td>
+<td>CardNumber*</td>
 <td>Alfa</td>
 <td>19</td>
 <td>Número do cartão (truncado)*</td>
@@ -513,25 +301,31 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>Contém dados do Ponto de Interação (terminal) que realizou a transação</td>
 </tr>
 <tr>
-<td>Cancellations</td>
+<td><strong>Cancellations</strong>**</td>
 <td>Container</td>
 <td>######</td>
 <td>Contém informações referentes aos cancelamentos, como data de desconto do cancelamento e valor total do cancelamento.**</td>
 </tr>
 <tr>
-<td>Installments</td>
+<td><strong>Installments</strong></td>
 <td>Container</td>
 <td>######</td>
 <td>Contém as parcelas da transação.</td>
 </tr>
 </tbody></table>
 
-<blockquote>
-<p>* Elementos que aparecem apenas quando a transação é de captura</p>
+<p><aside class="notice"> Informativo (Transaction)</p>
 
-<p>** Elemento que aparece apenas quando a transação é de cancelamento</p>
-</blockquote>
-<h3 id='b-ideventseventsb'><b id="Events">Events</b></h3>
+<p><ul></p>
+
+<p><li>* Elementos que aparecem apenas quando a transação é de captura<em> &lt;Captures&gt; 1 &lt;/Captures&gt; </em></li></p>
+
+<p><li>** Elemento que aparece apenas quando a transação é de cancelamento<em> &lt;Cancellations&gt;1&lt;/Cancellations&gt; </em></li></p>
+
+<p></ul></p>
+
+<p></aside></p>
+<h3 id='events'>Events</h3>
 <p>Nó filho de Transaction, contém contadores dos eventos de uma transação no dia de referência do arquivo.</p>
 
 <table><thead>
@@ -604,25 +398,9 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 </tr>
 </tbody></table>
 <h3 id='cancellations'>Cancellations</h3>
-<p>Contém uma lista de cancelamentos</p>
-
-<table><thead>
-<tr>
-<th>Elemento</th>
-<th>Tipo</th>
-<th>Tamanho</th>
-<th>Descrição</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>Cancellation</td>
-<td>Container</td>
-<td>######</td>
-<td>Representa um cancelamento de uma transação</td>
-</tr>
-</tbody></table>
+<p>Contém uma lista de <strong>Cancellation</strong></p>
 <h3 id='cancellation'>Cancellation</h3>
-<p>Representa um cancelamento de uma transação.</p>
+<p>Nó filho de <strong>Cancellations</strong> que contém as informações sobre o cancelamento de uma transação</p>
 
 <table><thead>
 <tr>
@@ -651,14 +429,20 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>Valor revertido e devolvido ao portador do cartão</td>
 </tr>
 <tr>
-<td>Billing</td>
+<td><strong>Billing</strong>*</td>
 <td>Collection</td>
 <td>######</td>
-<td>Lista de cobranças relativa ao cancelamento *</td>
+<td>Lista de cobranças relativa ao cancelamento*</td>
 </tr>
 </tbody></table>
 
-<p><aside class="notice">* Aparece apenas se a transação não tiver sido cancelada no mesmo dia da captura</aside></p>
+<p><aside class="notice"> Informativo (Cancellation)</p>
+
+<p><ul>
+        <li><b>* Aparece apenas se a transação não tiver sido cancelada no mesmo dia da captura</b></li>
+    </ul></p>
+
+<p></aside></p>
 <h3 id='billing'>Billing</h3>
 <p>Cobrança relativa ao cancelamento.</p>
 
@@ -684,23 +468,9 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 </tr>
 </tbody></table>
 <h3 id='installments'>Installments</h3>
-<table><thead>
-<tr>
-<th>Elemento</th>
-<th>Tipo</th>
-<th>Tamanho</th>
-<th>Descrição</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>Installment</td>
-<td>Container</td>
-<td>######</td>
-<td>Representa uma parcela de uma transação.</td>
-</tr>
-</tbody></table>
+<p>Contém uma lista de <strong>Installment</strong> (parcelas)</p>
 <h3 id='installment'>Installment</h3>
-<p>Representa uma parcela de uma transação.</p>
+<p>Nó filho de <strong>Installments</strong> que contém as informações sobre as parcelas de uma transação.</p>
 
 <table><thead>
 <tr>
@@ -729,29 +499,48 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>Valor liquido da parcela</td>
 </tr>
 <tr>
-<td>PrevisionPaymentDate</td>
+<td>PrevisionPaymentDate*</td>
 <td>Datetime</td>
 <td>8</td>
 <td>Previsão da data de pagamento (Formato: aaaammdd)</td>
 </tr>
 <tr>
-<td>Chargeback</td>
+<td>SuspendedByChargeback**</td>
+<td>Bool</td>
+<td>#</td>
+<td>Este elemento aparecerá nas parcelas ainda não liquidadas quando uma transação sofrer Chargeback (Nunca aparecerá junto com PrevisionPaymentDate)</td>
+</tr>
+<tr>
+<td><strong>Chargeback</strong>^</td>
 <td>Container</td>
 <td>######</td>
 <td>Contém chargebacks relativos a parcela**</td>
 </tr>
 <tr>
-<td>ChargebackRefund</td>
+<td><strong>ChargebackRefund</strong>^^</td>
 <td>Container</td>
 <td>######</td>
 <td>Contém estornos de chargeback relativos a parcela***</td>
 </tr>
 </tbody></table>
 
-<p><aside class="notice">** Elemento que só aparece quando houve Chargeback</aside>
-<aside class="notice">*** Elemento que só aparece quando houve Chargeback e Reapresentação de Chargeback</aside></p>
+<p><aside class="notice"> Informativo (Installment)</p>
+
+<ul>
+
+ <li><b>* Elemento que aparecerá apenas quando a parcela não estiver suspensa por Chargeback</b></li>
+
+ <li><b>** Elemento que aparecerá apenas nas parcelas posteriores à parcela que sofreu Chargeback</b></li>
+
+ <li><b>^ Elemento só aparece quando houver `Chargeback`</b></li>
+ 
+ <li><b>^^ Elemento só aparece quando houver `Chargeback` ou `Liquidação do Chargeback` ou `Reapresentação de Chargeback`</b></li>
+
+</ul>
+
+<p></aside></p>
 <h3 id='chargeback'>Chargeback</h3>
-<p>Nó filho de Installment que contém informações sobre o chargeback, como data de desconto, Id do chargeback, data em que ocorreu o chargeback, etc.</p>
+<p>Nó filho de <strong>Installment</strong> que contém informações sobre o chargeback, como data de desconto, Id do chargeback, data em que ocorreu o chargeback, etc.</p>
 
 <table><thead>
 <tr>
@@ -793,7 +582,7 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 </tr>
 </tbody></table>
 <h3 id='chargebackrefund'>ChargebackRefund</h3>
-<p>Nó filho de Installment que contém informações sobre a reapresentação do chargeback, como a data em que ocorreu a reapresentação, data de pagamento, etc.</p>
+<p>Nó filho de <strong>Installment</strong> que contém informações sobre a reapresentação do chargeback, como a data em que ocorreu a reapresentação, data de pagamento, etc.</p>
 
 <table><thead>
 <tr>
@@ -834,22 +623,14 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>Código de motivo do chargeback informado pelo banco emissor</td>
 </tr>
 </tbody></table>
-<h3 id='financialevents'>FinancialEvents</h3>
-<p>Nó filho de Conciliation, previsão de eventos financeiros lançados no dia de referência do arquivo (ajustes financeiros, aluguel de pos, etc&hellip;).</p>
+<h2 id='financialevents'>FinancialEvents</h2>
+<p>Descrição dos Containers e atributos dentro de <strong>FinancialEvents</strong>.</p>
 
-<table><thead>
-<tr>
-<th>Elemento</th>
-<th>Descrição</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>Event</td>
-<td>Contém informações sobre o evento ocorrido</td>
-</tr>
-</tbody></table>
+<ul>
+<li>Contém uma lista de <strong>Event</strong></li>
+</ul>
 <h3 id='event'>Event</h3>
-<p>Nó filho de FinancialEvents , descreve os detalhes do evento ocorrido.</p>
+<p>Nó filho de <strong>FinancialEvents</strong> , descreve os detalhes do evento ocorrido.</p>
 
 <table><thead>
 <tr>
@@ -872,7 +653,7 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>Descrição do evento</td>
 </tr>
 <tr>
-<td>Type</td>
+<td><a href="#Type">Type</a></td>
 <td>Num</td>
 <td>2</td>
 <td>Tipo do evento</td>
@@ -890,38 +671,132 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>Valor do evento</td>
 </tr>
 </tbody></table>
-<h3 id='financialtransactionsaccounts'>FinancialTransactionsAccounts</h3>
-<p>Nó filho de Conciliation, container de Transaction, que contém as transações pagas ou descontadas no dia referência do arquivo.</p>
+<h2 id='financialtransactionsaccounts'>FinancialTransactionsAccounts</h2>
+<p>Descrição dos Containers e atributos dentro de <strong>FinancialTransactionsAccounts</strong>.</p>
+
+<ul>
+<li>Contém uma lista de <strong>Transaction</strong></li>
+</ul>
+
+<p>Segue exatamente a mesma estrutura do nó <strong>FinancialTransactions</strong> descrito acima, com apenas algumas peculiariedades que serão demonstradas abaixo:</p>
+<h3 id='transaction'>Transaction</h3>
+<p>Nó filho de <strong>FinancialTransactionsAccounts</strong> que contém as informações referentes à transação, como valor total da transação, número de parcelas da transação, etc.</p>
 
 <table><thead>
 <tr>
 <th>Elemento</th>
+<th>Tipo</th>
+<th>Tamanho</th>
 <th>Descrição</th>
 </tr>
 </thead><tbody>
 <tr>
-<td>Transaction</td>
-<td>Contém informações referentes à transação, como valor total da transação, número de parcelas da transação, etc.</td>
+<td>Events</td>
+<td>Container</td>
+<td>#</td>
+<td>Igual ao descrito em <a href="#FinancialTransactions">FinancialTransactions</a></td>
+</tr>
+<tr>
+<td>AcquirerTransactionKey</td>
+<td>Num</td>
+<td>14</td>
+<td>Identificador único da transação (NSU) gerado pela adquirente</td>
+</tr>
+<tr>
+<td>InitiatorTransactionKey</td>
+<td>Alfa</td>
+<td>128</td>
+<td>Código recebido pelo sistema cliente</td>
+</tr>
+<tr>
+<td>AuthorizationDateTime</td>
+<td>Datetime</td>
+<td>14</td>
+<td>Datetime da autorização (Formato: aaaammddHHmmss)</td>
+</tr>
+<tr>
+<td>CaptureLocalDateTime</td>
+<td>Datetime</td>
+<td>14</td>
+<td>Datetime da captura (Formato: aaaammddHHmmss) no horario local da adquirente</td>
+</tr>
+<tr>
+<td><strong>Poi</strong>*</td>
+<td>Container</td>
+<td>#</td>
+<td>Igual ao descrito em <a href="#FinancialTransactions">FinancialTransactions</a></td>
+</tr>
+<tr>
+<td><strong>Cancellations</strong>*</td>
+<td>Container</td>
+<td>#</td>
+<td>Igual ao descrito em <a href="#FinancialTransactions">FinancialTransactions</a>, com algumas mudanças</td>
+</tr>
+<tr>
+<td><strong>Installments</strong>*</td>
+<td>Container</td>
+<td>#</td>
+<td>Igual ao descrito em <a href="#FinancialTransactions">FinancialTransactions</a>, com algumas mudanças</td>
 </tr>
 </tbody></table>
-<h3 id='transaction'>Transaction</h3>
-<p>Nó filho de FinancialTransactionPayments que contém as informações referentes à transação, como valor total da transação, número de parcelas da transação, etc.</p>
 
-<p><a href="#Transaction"><strong>Igual ao nó transaction de FinancialTransactions</strong></a></p>
-<h3 id='events'>Events</h3>
-<p>Nó filho de Transaction, contém contadores dos eventos de uma transação no dia de referência do arquivo.</p>
+<p><aside class="notice"> Informativo (Transaction)
+<ul>
+<li><b>* Elemento que aparecerá quando houver o desconto de um cancelamento &amp;ltCancellationCharges&amp;gt1&amp;ltCancellationCharges&amp;gt</b></li>
+</ul>
+</aside></p>
 
-<p><a href="#Events"><strong>Igual ao nó Events em Transaction de FinancialTransactions</strong></a></p>
+<p><aside class="warning"> Alerta!!!
+<ul></p>
 
-<p><strong>Porém o único evento que aparece em uma transação de FinancialTransactionAccounts é Payment</strong></p>
+<p><li><b>É importante armazenar as informações como IssuerAuthorizationCode, CardNumber, BrandId e etc, durante o evento de captura. Pois quando a transação aparecer em FinancialTransactionsAccounts (liquidação), virá apenas com os NSU para que possa identificar qual transação está sendo paga/descontada.</b></li></p>
+
+<p></ul>
+</aside></p>
 <h3 id='cancellations'>Cancellations</h3>
-<p>Contém uma lista de cancelamentos</p>
-
-<p><a href="#Cancellations"><strong>Igual ao nó Cancellations descrito acima</strong></a></p>
+<p>Contém uma lista de <strong>Cancellation</strong></p>
 <h3 id='cancellation'>Cancellation</h3>
-<p>Representa um cancelamento de uma transação.</p>
+<p>Nó filho de <strong>Cancellations</strong> que contém as informações sobre o desconto de um cancelamento</p>
 
-<p><a href="#Cancellation">** Igual ao nó Cancellation descrito acima**</a></p>
+<table><thead>
+<tr>
+<th>Elemento</th>
+<th>Tipo</th>
+<th>Tamanho</th>
+<th>Descrição</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>InstallmentNumber</td>
+<td>Num</td>
+<td>2</td>
+<td>Identificador único da operação de cancelamento</td>
+</tr>
+<tr>
+<td>OperationKey</td>
+<td>Alfa</td>
+<td>32</td>
+<td>Identificador da parcela que foi descontada</td>
+</tr>
+<tr>
+<td>CancellationDateTime</td>
+<td>Datetime</td>
+<td>14</td>
+<td>Data hora do cancelamento (Formato: aaaammddHHmmss)</td>
+</tr>
+<tr>
+<td>ReturnedAmount</td>
+<td>Float</td>
+<td>20</td>
+<td>Valor revertido e devolvido ao portador do cartão</td>
+</tr>
+<tr>
+<td><strong>Billing</strong></td>
+<td>Container</td>
+<td>#</td>
+<td>Lista de cobranças relativa ao cancelamento</td>
+</tr>
+</tbody></table>
 <h3 id='billing'>Billing</h3>
 <p>Cobrança relativa ao cancelamento.</p>
 
@@ -947,23 +822,9 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 </tr>
 </tbody></table>
 <h3 id='installments'>Installments</h3>
-<table><thead>
-<tr>
-<th>Elemento</th>
-<th>Tipo</th>
-<th>Tamanho</th>
-<th>Descrição</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>Installment</td>
-<td>Container</td>
-<td>######</td>
-<td>Representa uma parcela de uma transação.</td>
-</tr>
-</tbody></table>
+<p>Contém uma lista de <strong>Installment</strong> (parcelas)</p>
 <h3 id='installment'>Installment</h3>
-<p>Representa uma parcela de uma transação.</p>
+<p>Nó filho de <strong>Installments</strong> que contém as informações sobre as parcelas de uma transação.</p>
 
 <table><thead>
 <tr>
@@ -1004,13 +865,13 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>Valor cobrado pela antecipação de recebível*</td>
 </tr>
 <tr>
-<td>AdvancedReceivableOriginalPaymentDate</td>
+<td>AdvancedReceivableOriginalPaymentDate*</td>
 <td>Datetime</td>
 <td>8</td>
 <td>Data original de pagamento do recebível adiantado*</td>
 </tr>
 <tr>
-<td>SuspendedByChargeback</td>
+<td>SuspendedByChargeback**</td>
 <td>Alfa</td>
 <td>4</td>
 <td>Marcador se o pagamento da parcela está suspensa por Chargeback****</td>
@@ -1033,38 +894,43 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>9</td>
 <td>Referência do elemento de pagamento (Payments) no qual a liquidação dessa parcela foi incluida</td>
 </tr>
-</tbody></table>
-
-<p><aside class="notice">* Elementos que só aparecem quando houver antecipação</aside>
-<aside class="notice">** Elemento que só aparece quando houve Chargeback</aside>
-<aside class="notice">*** Elemento que só aparece quando houve Chargeback e Reapresentação de Chargeback</aside>
-<aside class="notice">**** Aparece apenas nas parcelas posteriores à parcela que sofreu chargeback</aside></p>
-<h3 id='chargeback'>Chargeback</h3>
-<p>Nó filho de Installment que contém informações sobre o chargeback, como data de desconto, Id do chargeback, data em que ocorreu o chargeback, etc.</p>
-
-<p><a href="#Chargeback"><strong>Igual ao nó Chargeback descrito acima</strong></a></p>
-<h3 id='chargebackrefund'>ChargebackRefund</h3>
-<p>Nó filho de [Installment] que contém informações sobre a reapresentação do chargeback, como a data em que ocorreu a reapresentação, data de pagamento, etc.</p>
-
-<p><a href="#ChargebackRef"><strong>Igual ao nó ChargebackRefund descrito acima</strong></a></p>
-<h3 id='financialeventaccounts'>FinancialEventAccounts</h3>
-<p>Nó filho de Conciliation, eventos financeiros pagos ou descontados no dia de referência do arquivo (ajustes financeiros, aluguel de pos, etc&hellip;).</p>
-
-<table><thead>
 <tr>
-<th>Elemento</th>
-<th>Descrição</th>
+<td><strong>Chargeback</strong>^</td>
+<td>Container</td>
+<td>#</td>
+<td>Referência do elemento de pagamento (Payments) no qual a liquidação dessa parcela foi incluida</td>
 </tr>
-</thead><tbody>
 <tr>
-<td>Event</td>
-<td>Contém informações sobre o evento ocorrido</td>
+<td><strong>ChargebackRefund</strong>^^</td>
+<td>Container</td>
+<td>#</td>
+<td>Referência do elemento de pagamento (Payments) no qual a liquidação dessa parcela foi incluida</td>
 </tr>
 </tbody></table>
+
+<p><aside class="notice">  Informativo (Installment | FinancialTransactionsAccounts)</p>
+
+<ul>
+
+<li><b>* Elementos que só aparecem quando houver antecipação</b></li>
+
+<li><b>** Elemento que só aparece quando houve Chargeback</b></li>
+
+<li><b>^ Elemento que só aparece quando houve Chargeback e Reapresentação de Chargeback</b></li>
+
+<li><b>^^ Aparece apenas nas parcelas posteriores à parcela que sofreu chargeback</b></li>
+
+</ul>
+
+<p></aside></p>
+<h2 id='financialeventaccounts'>FinancialEventAccounts</h2>
+<p>Descrição dos Containers e atributos dentro de <strong>FinancialEventsAccounts</strong>.</p>
+
+<ul>
+<li>Contém uma lista de <strong>Event</strong></li>
+</ul>
 <h3 id='event'>Event</h3>
-<p>Nó filho de FinacialEventPayments ,descreve os detalhes do evento ocorrido.</p>
-
-<p>Nó filho de [FinancialEvents] ou de [FinacialEventPayments], descreve os detalhes do evento ocorrido.</p>
+<p>Nó filho de FinancialEventsAccounts, contém as informações dos eventos financeiros pagos ou descontados no dia de referência do arquivo (ajustes financeiros, aluguel de pos, etc…)</p>
 
 <table><thead>
 <tr>
@@ -1081,12 +947,6 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>Código identificador do evento</td>
 </tr>
 <tr>
-<td>PaymentId</td>
-<td>Num</td>
-<td>9</td>
-<td>Referência do elemento de pagamento ([Payments]) no qual a liquidação dessa parcela foi incluida, aparece no nó [FinacialEventPayments]</td>
-</tr>
-<tr>
 <td>Description</td>
 <td>Alfa</td>
 <td>60</td>
@@ -1096,7 +956,7 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td><a href="#type">Type</a></td>
 <td>Num</td>
 <td>2</td>
-<td>Tipo do evento</td>
+<td>Tipo do evento (Poderá identificar se é uum crédito ou um débito através do sinal. Ex: -22 (Debito), 5 (Credito)</td>
 </tr>
 <tr>
 <td>PaymentDate</td>
@@ -1111,22 +971,14 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>Valor do evento</td>
 </tr>
 </tbody></table>
-<h3 id='payments'>Payments</h3>
-<p>Nó filho de Conciliation, contém informações dos pagamentos efetuados relativos as transações e eventos financeiros do arquivo.</p>
+<h2 id='payments'>Payments</h2>
+<p>Descrição dos Containers e atributos dentro de <strong>Payments</strong>.</p>
 
-<table><thead>
-<tr>
-<th>Elemento</th>
-<th>Descrição</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>Payment</td>
-<td>Pagamento efetuado para o lojista.</td>
-</tr>
-</tbody></table>
+<ul>
+<li>Contém uma lista de <strong>Payment</strong></li>
+</ul>
 <h3 id='payment'>Payment</h3>
-<p>Nó filho de Payments, representa um pagamento efetuado para o lojista.</p>
+<p>Nó filho de <strong>Payments</strong>, representa um pagamento efetuado para o lojista.</p>
 
 <table><thead>
 <tr>
@@ -1140,22 +992,47 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>Id</td>
 <td>Num</td>
 <td>9</td>
-<td>Identificador do pagamento.</td>
+<td>Identificador do pagamento</td>
 </tr>
 <tr>
 <td>TotalAmount</td>
 <td>Float</td>
 <td>20</td>
-<td>Valor total depositado na conta do lojista.</td>
+<td>Valor total depositado na conta do lojista</td>
+</tr>
+<tr>
+<td>TotalFinancialAccountsAmount*</td>
+<td>Float</td>
+<td>24</td>
+<td>Valor total que o lojista tem disponível para receber no dia</td>
+</tr>
+<tr>
+<td>LastNegativeAmount**</td>
+<td>Float</td>
+<td>24</td>
+<td>Valor negativo que o cliente tem pendente com a Stone</td>
 </tr>
 <tr>
 <td>FavoredBankAccount</td>
 <td>Container</td>
-<td>######</td>
+<td>#</td>
 <td>Informações bancarias da conta favorecida pelo pagamento</td>
 </tr>
 </tbody></table>
+
+<p><aside class="notice"> Informativo (Payments)</p>
+
+<p>O nó <strong>Payment</strong> aparecerá apenas quando for feito um depósito na conta. Não aparecerá em situações em que os descontos forem maior que os recebíveis do dia.
+<ul>
+<li><b>* Quando o valor desse elemento for negativo, o valor total pago no dia ao lojista <em>TotalAmount</em> será zero.</b></li></p>
+
+<p><li><b>** O valor negativo pendente será descontado do valor total que o lojista tem para receber, caso esse total seja positivo <em>TotalFinancialAccountsAmount</em>.</b></li></p>
+
+<p></ul>
+</aside></p>
 <h3 id='favoredbankaccount'>FavoredBankAccount</h3>
+<p>Nó filho de <strong>Payment</strong>. Contém as informações bancárias da conta em que foi feito o depósito.</p>
+
 <table><thead>
 <tr>
 <th>Elemento</th>
@@ -1168,13 +1045,13 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>BankCode</td>
 <td>Num</td>
 <td>4</td>
-<td>Código do banco favorecido</td>
+<td>Código do banco favorecido de acordo com o <a href="http://www.bcb.gov.br/?RELAGPAB">Banco Central</a></td>
 </tr>
 <tr>
 <td>BankBranch</td>
 <td>Alfa</td>
 <td>10</td>
-<td>Número da agencia favorecida</td>
+<td>Código da agência do banco de acordo com o <a href="http://www.bcb.gov.br/?RELAGPAB">Banco Central</a></td>
 </tr>
 <tr>
 <td>BankAccountNumber</td>
@@ -1183,8 +1060,8 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>Número da conta favorecida</td>
 </tr>
 </tbody></table>
-<h3 id='trailer'>Trailer</h3>
-<p>Contadores e totalizadores do arquivo.</p>
+<h2 id='trailer'>Trailer</h2>
+<p>Descrição dos atributos dentro de <strong>Trailer</strong></p>
 
 <table><thead>
 <tr>
@@ -1255,7 +1132,1366 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>Número de eventos financaeiros descontados</td>
 </tr>
 </tbody></table>
-<h2 id='exemplo-de-layout-v2'>Exemplo de Layout v2</h2><pre><code class="highlight xml"><span class="nt">&lt;Conciliation&gt;</span>
+<h1 id='layout-v2'>Layout V2</h1><h2 id='o-fluxo'>O Fluxo</h2>
+<p>Toda transação nova ou acontecimento de uma transação já existente será demonstrada no arquivo de diferentes maneiras. Abaixo demonstrarei os principais fluxos:</p>
+
+<p><aside class="success"> Captura</p>
+
+<ul>
+<li>Quando uma transação é realizada, um nó `Transaction` referente à ela aparecerá sob `FinancialTransactions` no arquivo de conciliação desse dia com o evento `Captures` com o valor 1 em `Event`, dentro do nó transaction se encontrará todas as parcelas dessa transação representadas pelos nós `Installment`.</li>
+</ul>
+
+<p></aside></p>
+<h3 id='exemplos-de-ciclo-de-vida-da-captura'>Exemplos de ciclo de vida da captura:</h3>
+<p><code class="prettyprint">Captura (10/05) &gt; Liquidação da Parcela (09/06)</code></p>
+
+<blockquote>
+<p>Captura</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+   <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>1<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;International&gt;</span>True<span class="nt">&lt;/International&gt;</span>
+            <span class="nt">&lt;AccountType&gt;</span>2<span class="nt">&lt;/AccountType&gt;</span>
+            <span class="nt">&lt;InstallmentType&gt;</span>1<span class="nt">&lt;/InstallmentType&gt;</span>
+            <span class="nt">&lt;NumberOfInstallments&gt;</span>1<span class="nt">&lt;/NumberOfInstallments&gt;</span>
+            <span class="nt">&lt;AuthorizedAmount&gt;</span>694.000000<span class="nt">&lt;/AuthorizedAmount&gt;</span>
+            <span class="nt">&lt;CapturedAmount&gt;</span>694.000000<span class="nt">&lt;/CapturedAmount&gt;</span>
+            <span class="nt">&lt;AuthorizationCurrencyCode&gt;</span>986<span class="nt">&lt;/AuthorizationCurrencyCode&gt;</span>
+            <span class="nt">&lt;IssuerAuthorizationCode&gt;</span>054973<span class="nt">&lt;/IssuerAuthorizationCode&gt;</span>
+            <span class="nt">&lt;BrandId&gt;</span>1<span class="nt">&lt;/BrandId&gt;</span>
+            <span class="nt">&lt;CardNumber&gt;</span>411111******1111<span class="nt">&lt;/CardNumber&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160609<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+        <span class="nt">&lt;/Transaction&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialTransactions&gt;</span>
+
+</code></pre>
+
+<blockquote>
+<p>Liquidação Parcela 1</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+  ...
+    <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>1<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PaymentDate&gt;</span>20160609<span class="nt">&lt;/PaymentDate&gt;</span>
+                    <span class="nt">&lt;PaymentId&gt;</span>1234567<span class="nt">&lt;/PaymentId&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+       <span class="nt">&lt;/Transaction&gt;</span>
+    ...
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+ ...
+<span class="nt">&lt;Payments&gt;</span>
+        <span class="nt">&lt;Payment&gt;</span>
+            <span class="nt">&lt;Id&gt;</span>1234567<span class="nt">&lt;/Id&gt;</span>
+            <span class="nt">&lt;TotalAmount&gt;</span>14185.81<span class="nt">&lt;/TotalAmount&gt;</span>
+            <span class="nt">&lt;TotalFinancialAccountsAmount&gt;</span>14185.81<span class="nt">&lt;/TotalFinancialAccountsAmount&gt;</span>
+            <span class="nt">&lt;LastNegativeAmount&gt;</span>0.00<span class="nt">&lt;/LastNegativeAmount&gt;</span>
+            <span class="nt">&lt;FavoredBankAccount&gt;</span>
+                <span class="nt">&lt;BankCode&gt;</span>XX<span class="nt">&lt;/BankCode&gt;</span>
+                <span class="nt">&lt;BankBranch&gt;</span>XXXX<span class="nt">&lt;/BankBranch&gt;</span>
+                <span class="nt">&lt;BankAccountNumber&gt;</span>XXXXXXXXX<span class="nt">&lt;/BankAccountNumber&gt;</span>
+            <span class="nt">&lt;/FavoredBankAccount&gt;</span>
+        <span class="nt">&lt;/Payment&gt;</span>
+<span class="nt">&lt;/Payments&gt;</span>
+
+</code></pre>
+
+<p><aside class="success"> Cancelamento</p>
+
+<ul>
+
+<li>Quando uma transação é cancelada no dia de referência, um nó `Transaction` referente a ela aparecerá sob `FinancialTransactions` no arquivo de conciliação desse dia com o evento `Cancellations` com o valor 1 em `Event`, dentro do nó `Transaction` aparecerá um nó chamado `Cancellations` que descreve cada cancelamento (vários se houver cancelamentos parciais, ou apenas um se for cancelamento total)</li>
+
+</ul>
+
+<p></aside></p>
+<h3 id='exemplos-de-ciclos-de-vida-da-cancelamento'>Exemplos de ciclos de vida da cancelamento:</h3>
+<blockquote>
+<p><code class="prettyprint">Captura (10/05) &gt; Liquidação da Parcela (09/06) &gt; Cancelamento (10/06) &gt; Desconto do Cancelamento (12/06)</code></p>
+
+<p>Captura</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+   <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>1<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;International&gt;</span>True<span class="nt">&lt;/International&gt;</span>
+            <span class="nt">&lt;AccountType&gt;</span>2<span class="nt">&lt;/AccountType&gt;</span>
+            <span class="nt">&lt;InstallmentType&gt;</span>1<span class="nt">&lt;/InstallmentType&gt;</span>
+            <span class="nt">&lt;NumberOfInstallments&gt;</span>1<span class="nt">&lt;/NumberOfInstallments&gt;</span>
+            <span class="nt">&lt;AuthorizedAmount&gt;</span>694.000000<span class="nt">&lt;/AuthorizedAmount&gt;</span>
+            <span class="nt">&lt;CapturedAmount&gt;</span>694.000000<span class="nt">&lt;/CapturedAmount&gt;</span>
+            <span class="nt">&lt;AuthorizationCurrencyCode&gt;</span>986<span class="nt">&lt;/AuthorizationCurrencyCode&gt;</span>
+            <span class="nt">&lt;IssuerAuthorizationCode&gt;</span>054973<span class="nt">&lt;/IssuerAuthorizationCode&gt;</span>
+            <span class="nt">&lt;BrandId&gt;</span>1<span class="nt">&lt;/BrandId&gt;</span>
+            <span class="nt">&lt;CardNumber&gt;</span>411111******1111<span class="nt">&lt;/CardNumber&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160609<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+        <span class="nt">&lt;/Transaction&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialTransactions&gt;</span>
+
+</code></pre>
+
+<blockquote>
+<p>Liquidação Parcela 1</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+  ...
+    <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>1<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PaymentDate&gt;</span>20160609<span class="nt">&lt;/PaymentDate&gt;</span>
+                    <span class="nt">&lt;PaymentId&gt;</span>1234567<span class="nt">&lt;/PaymentId&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+       <span class="nt">&lt;/Transaction&gt;</span>
+    ...
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+ ...
+<span class="nt">&lt;Payments&gt;</span>
+        <span class="nt">&lt;Payment&gt;</span>
+            <span class="nt">&lt;Id&gt;</span>1234567<span class="nt">&lt;/Id&gt;</span>
+            <span class="nt">&lt;TotalAmount&gt;</span>14185.81<span class="nt">&lt;/TotalAmount&gt;</span>
+            <span class="nt">&lt;TotalFinancialAccountsAmount&gt;</span>14185.81<span class="nt">&lt;/TotalFinancialAccountsAmount&gt;</span>
+            <span class="nt">&lt;LastNegativeAmount&gt;</span>0.00<span class="nt">&lt;/LastNegativeAmount&gt;</span>
+            <span class="nt">&lt;FavoredBankAccount&gt;</span>
+                <span class="nt">&lt;BankCode&gt;</span>XX<span class="nt">&lt;/BankCode&gt;</span>
+                <span class="nt">&lt;BankBranch&gt;</span>XXXX<span class="nt">&lt;/BankBranch&gt;</span>
+                <span class="nt">&lt;BankAccountNumber&gt;</span>XXXXXXXXX<span class="nt">&lt;/BankAccountNumber&gt;</span>
+            <span class="nt">&lt;/FavoredBankAccount&gt;</span>
+        <span class="nt">&lt;/Payment&gt;</span>
+<span class="nt">&lt;/Payments&gt;</span>
+
+</code></pre>
+
+<blockquote>
+<p>Cancelamento</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+    <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>1<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Cancellations&gt;</span>
+                <span class="nt">&lt;Cancellation&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;OperationKey&gt;</span>2276000071307928<span class="nt">&lt;/OperationKey&gt;</span>
+                    <span class="nt">&lt;CancellationDateTime&gt;</span>20160610040236<span class="nt">&lt;/CancellationDateTime&gt;</span>
+                    <span class="nt">&lt;ReturnedAmount&gt;</span>694.000000<span class="nt">&lt;/ReturnedAmount&gt;</span>
+                    <span class="nt">&lt;Billing&gt;</span>
+                        <span class="nt">&lt;ChargedAmount&gt;</span>678.454400<span class="nt">&lt;/ChargedAmount&gt;</span>
+                        <span class="nt">&lt;PrevisionChargeDate&gt;</span>20160612<span class="nt">&lt;/PrevisionChargeDate&gt;</span>
+                    <span class="nt">&lt;/Billing&gt;</span>
+                <span class="nt">&lt;/Cancellation&gt;</span>
+           <span class="nt">&lt;/Cancellations&gt;</span>
+       <span class="nt">&lt;/Transaction&gt;</span>
+    ...
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Liquidação Cancelamento</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+  ...
+    <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>1<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Cancellations&gt;</span>
+                <span class="nt">&lt;Cancellation&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;OperationKey&gt;</span>2276000071307928<span class="nt">&lt;/OperationKey&gt;</span>
+                    <span class="nt">&lt;CancellationDateTime&gt;</span>20160610040236<span class="nt">&lt;/CancellationDateTime&gt;</span>
+                    <span class="nt">&lt;ReturnedAmount&gt;</span>694.000000<span class="nt">&lt;/ReturnedAmount&gt;</span>
+                    <span class="nt">&lt;Billing&gt;</span>
+                        <span class="nt">&lt;ChargedAmount&gt;</span>678.454400<span class="nt">&lt;/ChargedAmount&gt;</span>
+                        <span class="nt">&lt;ChargeDate&gt;</span>20160612<span class="nt">&lt;/ChargeDate&gt;</span>
+                    <span class="nt">&lt;/Billing&gt;</span>
+                <span class="nt">&lt;/Cancellation&gt;</span>
+            <span class="nt">&lt;/Cancellations&gt;</span>
+       <span class="nt">&lt;/Transaction&gt;</span>
+    ...
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+</code></pre>
+
+<p><code class="prettyprint">Captura (10/05) &gt; Liquidação da Parcela (09/06) &gt; Cancelamento (10/06) &gt; Desconto do Cancelamento (12/06)</code></p>
+
+<blockquote>
+<p>Captura</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+   <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>1<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;International&gt;</span>True<span class="nt">&lt;/International&gt;</span>
+            <span class="nt">&lt;AccountType&gt;</span>2<span class="nt">&lt;/AccountType&gt;</span>
+            <span class="nt">&lt;InstallmentType&gt;</span>1<span class="nt">&lt;/InstallmentType&gt;</span>
+            <span class="nt">&lt;NumberOfInstallments&gt;</span>3<span class="nt">&lt;/NumberOfInstallments&gt;</span>
+            <span class="nt">&lt;AuthorizedAmount&gt;</span>1099.000000<span class="nt">&lt;/AuthorizedAmount&gt;</span>
+            <span class="nt">&lt;CapturedAmount&gt;</span>694.000000<span class="nt">&lt;/CapturedAmount&gt;</span>
+            <span class="nt">&lt;AuthorizationCurrencyCode&gt;</span>986<span class="nt">&lt;/AuthorizationCurrencyCode&gt;</span>
+            <span class="nt">&lt;IssuerAuthorizationCode&gt;</span>054973<span class="nt">&lt;/IssuerAuthorizationCode&gt;</span>
+            <span class="nt">&lt;BrandId&gt;</span>1<span class="nt">&lt;/BrandId&gt;</span>
+            <span class="nt">&lt;CardNumber&gt;</span>411111******1111<span class="nt">&lt;/CardNumber&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>366.340000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>357.657742<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160609<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>2<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>366.330000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>357.647979<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160709<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>3<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>366.330000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>357.647979<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160809<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+        <span class="nt">&lt;/Transaction&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialTransactions&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Liquidação Parcela 1</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+  ...
+    <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>1<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>366.340000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>357.657742<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PaymentDate&gt;</span>20160609<span class="nt">&lt;/PaymentDate&gt;</span>
+                    <span class="nt">&lt;PaymentId&gt;</span>1234567<span class="nt">&lt;/PaymentId&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+       <span class="nt">&lt;/Transaction&gt;</span>
+    ...
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+ ...
+<span class="nt">&lt;Payments&gt;</span>
+        <span class="nt">&lt;Payment&gt;</span>
+            <span class="nt">&lt;Id&gt;</span>1234567<span class="nt">&lt;/Id&gt;</span>
+            <span class="nt">&lt;TotalAmount&gt;</span>14185.81<span class="nt">&lt;/TotalAmount&gt;</span>
+            <span class="nt">&lt;TotalFinancialAccountsAmount&gt;</span>14185.81<span class="nt">&lt;/TotalFinancialAccountsAmount&gt;</span>
+            <span class="nt">&lt;LastNegativeAmount&gt;</span>0.00<span class="nt">&lt;/LastNegativeAmount&gt;</span>
+            <span class="nt">&lt;FavoredBankAccount&gt;</span>
+                <span class="nt">&lt;BankCode&gt;</span>XX<span class="nt">&lt;/BankCode&gt;</span>
+                <span class="nt">&lt;BankBranch&gt;</span>XXXX<span class="nt">&lt;/BankBranch&gt;</span>
+                <span class="nt">&lt;BankAccountNumber&gt;</span>XXXXXXXXX<span class="nt">&lt;/BankAccountNumber&gt;</span>
+            <span class="nt">&lt;/FavoredBankAccount&gt;</span>
+        <span class="nt">&lt;/Payment&gt;</span>
+<span class="nt">&lt;/Payments&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Cancelamento</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+    <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>1<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Cancellations&gt;</span>
+                <span class="nt">&lt;Cancellation&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;OperationKey&gt;</span>2276000071307928<span class="nt">&lt;/OperationKey&gt;</span>
+                    <span class="nt">&lt;CancellationDateTime&gt;</span>20160610040236<span class="nt">&lt;/CancellationDateTime&gt;</span>
+                    <span class="nt">&lt;ReturnedAmount&gt;</span>366.340000<span class="nt">&lt;/ReturnedAmount&gt;</span>
+                    <span class="nt">&lt;Billing&gt;</span>
+                        <span class="nt">&lt;ChargedAmount&gt;</span>357.657742<span class="nt">&lt;/ChargedAmount&gt;</span>
+                        <span class="nt">&lt;PrevisionChargeDate&gt;</span>20160612<span class="nt">&lt;/PrevisionChargeDate&gt;</span>
+                    <span class="nt">&lt;/Billing&gt;</span>
+                <span class="nt">&lt;/Cancellation&gt;</span>
+                <span class="nt">&lt;Cancellation&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>2<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;OperationKey&gt;</span>2276000071307928<span class="nt">&lt;/OperationKey&gt;</span>
+                    <span class="nt">&lt;CancellationDateTime&gt;</span>20160610040236<span class="nt">&lt;/CancellationDateTime&gt;</span>
+                    <span class="nt">&lt;ReturnedAmount&gt;</span>366.330000<span class="nt">&lt;/ReturnedAmount&gt;</span>
+                    <span class="nt">&lt;Billing&gt;</span>
+                        <span class="nt">&lt;ChargedAmount&gt;</span>357.647979<span class="nt">&lt;/ChargedAmount&gt;</span>
+                        <span class="nt">&lt;PrevisionChargeDate&gt;</span>20160612<span class="nt">&lt;/PrevisionChargeDate&gt;</span>
+                    <span class="nt">&lt;/Billing&gt;</span>
+                <span class="nt">&lt;/Cancellation&gt;</span>
+                <span class="nt">&lt;Cancellation&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>3<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;OperationKey&gt;</span>2276000071307928<span class="nt">&lt;/OperationKey&gt;</span>
+                    <span class="nt">&lt;CancellationDateTime&gt;</span>20160610040236<span class="nt">&lt;/CancellationDateTime&gt;</span>
+                    <span class="nt">&lt;ReturnedAmount&gt;</span>366.330000<span class="nt">&lt;/ReturnedAmount&gt;</span>
+                    <span class="nt">&lt;Billing&gt;</span>
+                        <span class="nt">&lt;ChargedAmount&gt;</span>357.647979<span class="nt">&lt;/ChargedAmount&gt;</span>
+                        <span class="nt">&lt;PrevisionChargeDate&gt;</span>20160612<span class="nt">&lt;/PrevisionChargeDate&gt;</span>
+                    <span class="nt">&lt;/Billing&gt;</span>
+                <span class="nt">&lt;/Cancellation&gt;</span>
+           <span class="nt">&lt;/Cancellations&gt;</span>
+       <span class="nt">&lt;/Transaction&gt;</span>
+    ...
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Desconto do Cancelamento</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+  ...
+    <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>3<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>2<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="c">&lt;!--Aceleração das parcelas--&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>2<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>366.330000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>357.647979<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PaymentDate&gt;</span>20160612<span class="nt">&lt;/PaymentDate&gt;</span>
+                    <span class="nt">&lt;PaymentId&gt;</span>1234567<span class="nt">&lt;/PaymentId&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>3<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>366.330000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>357.647979<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PaymentDate&gt;</span>20160612<span class="nt">&lt;/PaymentDate&gt;</span>
+                    <span class="nt">&lt;PaymentId&gt;</span>1234567<span class="nt">&lt;/PaymentId&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+            <span class="nt">&lt;Cancellations&gt;</span>
+                <span class="c">&lt;!--Cancelamento das parcelas aceleradas--&gt;</span>
+                <span class="nt">&lt;Cancellation&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;OperationKey&gt;</span>2276000071307928<span class="nt">&lt;/OperationKey&gt;</span>
+                    <span class="nt">&lt;CancellationDateTime&gt;</span>20160610040236<span class="nt">&lt;/CancellationDateTime&gt;</span>
+                    <span class="nt">&lt;ReturnedAmount&gt;</span>366.340000<span class="nt">&lt;/ReturnedAmount&gt;</span>
+                    <span class="nt">&lt;Billing&gt;</span>
+                        <span class="nt">&lt;ChargedAmount&gt;</span>357.657742<span class="nt">&lt;/ChargedAmount&gt;</span>
+                        <span class="nt">&lt;ChargeDate&gt;</span>20160612<span class="nt">&lt;/ChargeDate&gt;</span>
+                    <span class="nt">&lt;/Billing&gt;</span>
+                <span class="nt">&lt;/Cancellation&gt;</span>
+                <span class="nt">&lt;Cancellation&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>2<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;OperationKey&gt;</span>2276000071307928<span class="nt">&lt;/OperationKey&gt;</span>
+                    <span class="nt">&lt;CancellationDateTime&gt;</span>20160610040236<span class="nt">&lt;/CancellationDateTime&gt;</span>
+                    <span class="nt">&lt;ReturnedAmount&gt;</span>366.330000<span class="nt">&lt;/ReturnedAmount&gt;</span>
+                    <span class="nt">&lt;Billing&gt;</span>
+                        <span class="nt">&lt;ChargedAmount&gt;</span>357.647979<span class="nt">&lt;/ChargedAmount&gt;</span>
+                        <span class="nt">&lt;ChargeDate&gt;</span>20160612<span class="nt">&lt;/ChargeDate&gt;</span>
+                    <span class="nt">&lt;/Billing&gt;</span>
+                <span class="nt">&lt;/Cancellation&gt;</span>
+                <span class="nt">&lt;Cancellation&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>3<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;OperationKey&gt;</span>2276000071307928<span class="nt">&lt;/OperationKey&gt;</span>
+                    <span class="nt">&lt;CancellationDateTime&gt;</span>20160610040236<span class="nt">&lt;/CancellationDateTime&gt;</span>
+                    <span class="nt">&lt;ReturnedAmount&gt;</span>366.330000<span class="nt">&lt;/ReturnedAmount&gt;</span>
+                    <span class="nt">&lt;Billing&gt;</span>
+                        <span class="nt">&lt;ChargedAmount&gt;</span>357.647979<span class="nt">&lt;/ChargedAmount&gt;</span>
+                        <span class="nt">&lt;ChargeDate&gt;</span>20160612<span class="nt">&lt;/ChargeDate&gt;</span>
+                    <span class="nt">&lt;/Billing&gt;</span>
+                <span class="nt">&lt;/Cancellation&gt;</span>
+            <span class="nt">&lt;/Cancellations&gt;</span>
+       <span class="nt">&lt;/Transaction&gt;</span>
+    ...
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+</code></pre>
+
+<p><aside class="notice"> Aceleração de Parcelas</p>
+
+<ul>
+
+<li>Acima podemos ver o exemplo de um fluxo de **Aceleração de parcelas**. Ou seja, se eu tenho uma transação de 2 parcelas, e após a liquidação da primeira parcela é enviado um cancelamento, no dia do desconto do cancelamento, é feita a aceleração da liquidação das parcelas restantes para liberar o saldo do cliente. Perceba que a PaymentDate no dia 12/06 foi antecipada.</li>
+
+</ul>
+
+<p></aside></p>
+
+<p><code class="prettyprint">Captura (10/05) &gt; Cancelamento (10/05)</code></p>
+
+<blockquote>
+<p>Captura + Cancelamento</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+   <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>1<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>1<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;International&gt;</span>True<span class="nt">&lt;/International&gt;</span>
+            <span class="nt">&lt;AccountType&gt;</span>2<span class="nt">&lt;/AccountType&gt;</span>
+            <span class="nt">&lt;InstallmentType&gt;</span>1<span class="nt">&lt;/InstallmentType&gt;</span>
+            <span class="nt">&lt;NumberOfInstallments&gt;</span>3<span class="nt">&lt;/NumberOfInstallments&gt;</span>
+            <span class="nt">&lt;AuthorizedAmount&gt;</span>1099.000000<span class="nt">&lt;/AuthorizedAmount&gt;</span>
+            <span class="nt">&lt;CapturedAmount&gt;</span>694.000000<span class="nt">&lt;/CapturedAmount&gt;</span>
+            <span class="nt">&lt;AuthorizationCurrencyCode&gt;</span>986<span class="nt">&lt;/AuthorizationCurrencyCode&gt;</span>
+            <span class="nt">&lt;IssuerAuthorizationCode&gt;</span>054973<span class="nt">&lt;/IssuerAuthorizationCode&gt;</span>
+            <span class="nt">&lt;BrandId&gt;</span>1<span class="nt">&lt;/BrandId&gt;</span>
+            <span class="nt">&lt;CardNumber&gt;</span>411111******1111<span class="nt">&lt;/CardNumber&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Cancellations&gt;</span>
+                <span class="nt">&lt;Cancellation&gt;</span>
+                    <span class="nt">&lt;OperationKey&gt;</span>2316000073093085<span class="nt">&lt;/OperationKey&gt;</span>
+                    <span class="nt">&lt;CancellationDateTime&gt;</span>20160510104014<span class="nt">&lt;/CancellationDateTime&gt;</span>
+                    <span class="nt">&lt;ReturnedAmount&gt;</span>694.000000<span class="nt">&lt;/ReturnedAmount&gt;</span>
+                <span class="nt">&lt;/Cancellation&gt;</span>
+            <span class="nt">&lt;/Cancellations&gt;</span>
+        <span class="nt">&lt;/Transaction&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialTransactions&gt;</span>
+</code></pre>
+
+<p><aside class="notice"> Captura + Cancelamento</p>
+
+<ul>
+
+<li>Repare que quando o cancelamento é feito no mesmo dia da captura, o nó `Billing` não aparece, ou seja, não é agendado uma data de desconto do cancelamento.</li>
+
+</ul>
+
+<p></aside></p>
+
+<p><aside class="success"> Chargeback</p>
+
+<ul>
+
+<li>Quando uma transação sofre chargeback ela aparece tanto em `FinancialTransactions` no dia em que sofreu o chargeback, e em `FinancialTransactionAccounts` no dia em que foi descontada.</li>
+
+</ul>
+
+<p></aside></p>
+<h3 id='exemplos-de-ciclos-de-vida-do-chargeback'>Exemplos de ciclos de vida do Chargeback:</h3>
+<p><code class="prettyprint">Captura (10/05) &gt; Liquidação da Parcela (09/06) &gt; Chargeback + Desconto do Chargeback (10/06)</code></p>
+
+<blockquote>
+<p>Captura</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+   <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>1<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;International&gt;</span>True<span class="nt">&lt;/International&gt;</span>
+            <span class="nt">&lt;AccountType&gt;</span>2<span class="nt">&lt;/AccountType&gt;</span>
+            <span class="nt">&lt;InstallmentType&gt;</span>1<span class="nt">&lt;/InstallmentType&gt;</span>
+            <span class="nt">&lt;NumberOfInstallments&gt;</span>1<span class="nt">&lt;/NumberOfInstallments&gt;</span>
+            <span class="nt">&lt;AuthorizedAmount&gt;</span>694.000000<span class="nt">&lt;/AuthorizedAmount&gt;</span>
+            <span class="nt">&lt;CapturedAmount&gt;</span>694.000000<span class="nt">&lt;/CapturedAmount&gt;</span>
+            <span class="nt">&lt;AuthorizationCurrencyCode&gt;</span>986<span class="nt">&lt;/AuthorizationCurrencyCode&gt;</span>
+            <span class="nt">&lt;IssuerAuthorizationCode&gt;</span>054973<span class="nt">&lt;/IssuerAuthorizationCode&gt;</span>
+            <span class="nt">&lt;BrandId&gt;</span>1<span class="nt">&lt;/BrandId&gt;</span>
+            <span class="nt">&lt;CardNumber&gt;</span>411111******1111<span class="nt">&lt;/CardNumber&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160609<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+        <span class="nt">&lt;/Transaction&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialTransactions&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Liquidação da Parcela</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+  ...
+    <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>1<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PaymentDate&gt;</span>20160609<span class="nt">&lt;/PaymentDate&gt;</span>
+                    <span class="nt">&lt;PaymentId&gt;</span>1234567<span class="nt">&lt;/PaymentId&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+       <span class="nt">&lt;/Transaction&gt;</span>
+    ...
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+ ...
+<span class="nt">&lt;Payments&gt;</span>
+        <span class="nt">&lt;Payment&gt;</span>
+            <span class="nt">&lt;Id&gt;</span>1234567<span class="nt">&lt;/Id&gt;</span>
+            <span class="nt">&lt;TotalAmount&gt;</span>14185.81<span class="nt">&lt;/TotalAmount&gt;</span>
+            <span class="nt">&lt;TotalFinancialAccountsAmount&gt;</span>14185.81<span class="nt">&lt;/TotalFinancialAccountsAmount&gt;</span>
+            <span class="nt">&lt;LastNegativeAmount&gt;</span>0.00<span class="nt">&lt;/LastNegativeAmount&gt;</span>
+            <span class="nt">&lt;FavoredBankAccount&gt;</span>
+                <span class="nt">&lt;BankCode&gt;</span>XX<span class="nt">&lt;/BankCode&gt;</span>
+                <span class="nt">&lt;BankBranch&gt;</span>XXXX<span class="nt">&lt;/BankBranch&gt;</span>
+                <span class="nt">&lt;BankAccountNumber&gt;</span>XXXXXXXXX<span class="nt">&lt;/BankAccountNumber&gt;</span>
+            <span class="nt">&lt;/FavoredBankAccount&gt;</span>
+        <span class="nt">&lt;/Payment&gt;</span>
+<span class="nt">&lt;/Payments&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Chargeback + Desconto Chargeback</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+    <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>1<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160609<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                    <span class="nt">&lt;Chargeback&gt;</span>
+                        <span class="nt">&lt;Id&gt;</span>187384389<span class="nt">&lt;/Id&gt;</span>
+                        <span class="nt">&lt;Amount&gt;</span>678.454400<span class="nt">&lt;/Amount&gt;</span>
+                        <span class="nt">&lt;Date&gt;</span>20160610<span class="nt">&lt;/Date&gt;</span>
+                        <span class="nt">&lt;ChargeDate&gt;</span>20160610<span class="nt">&lt;/ChargeDate&gt;</span>
+                        <span class="nt">&lt;ReasonCode&gt;</span>83<span class="nt">&lt;/ReasonCode&gt;</span>
+                    <span class="nt">&lt;/Chargeback&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+       <span class="nt">&lt;/Transaction&gt;</span>
+    ...
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+</code></pre>
+
+<p><aside class="notice">  Chargeback após liquidação da parcela
+<ul></p>
+
+<p><li>Caso o chargeback ocorra após a liquidação da parcela, ele reaparecerá dentro de Installment e sua liquidação será imediata, sem a necessidade de aparecer novamente dentro de <code class="prettyprint">FinancialTransactionsAccounts</code>.</li></p>
+
+<p></ul></p>
+
+<p></aside></p>
+
+<p><code class="prettyprint">Captura (10/05) &gt; Chargeback (20/05) &gt; Liquidação Parcela + Desconto do Chargeback (09/06)</code></p>
+
+<blockquote>
+<p>Captura</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+   <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>1<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;International&gt;</span>True<span class="nt">&lt;/International&gt;</span>
+            <span class="nt">&lt;AccountType&gt;</span>2<span class="nt">&lt;/AccountType&gt;</span>
+            <span class="nt">&lt;InstallmentType&gt;</span>1<span class="nt">&lt;/InstallmentType&gt;</span>
+            <span class="nt">&lt;NumberOfInstallments&gt;</span>1<span class="nt">&lt;/NumberOfInstallments&gt;</span>
+            <span class="nt">&lt;AuthorizedAmount&gt;</span>694.000000<span class="nt">&lt;/AuthorizedAmount&gt;</span>
+            <span class="nt">&lt;CapturedAmount&gt;</span>694.000000<span class="nt">&lt;/CapturedAmount&gt;</span>
+            <span class="nt">&lt;AuthorizationCurrencyCode&gt;</span>986<span class="nt">&lt;/AuthorizationCurrencyCode&gt;</span>
+            <span class="nt">&lt;IssuerAuthorizationCode&gt;</span>054973<span class="nt">&lt;/IssuerAuthorizationCode&gt;</span>
+            <span class="nt">&lt;BrandId&gt;</span>1<span class="nt">&lt;/BrandId&gt;</span>
+            <span class="nt">&lt;CardNumber&gt;</span>411111******1111<span class="nt">&lt;/CardNumber&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160609<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+        <span class="nt">&lt;/Transaction&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialTransactions&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Chargeback</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+   <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>1<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160609<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                    <span class="nt">&lt;Chargeback&gt;</span>
+                        <span class="nt">&lt;Id&gt;</span>149222320<span class="nt">&lt;/Id&gt;</span>
+                        <span class="nt">&lt;Amount&gt;</span>678.454400<span class="nt">&lt;/Amount&gt;</span>
+                        <span class="nt">&lt;Date&gt;</span>20160520<span class="nt">&lt;/Date&gt;</span>
+                        <span class="nt">&lt;ChargeDate&gt;</span>20160609<span class="nt">&lt;/ChargeDate&gt;</span>
+                        <span class="nt">&lt;ReasonCode&gt;</span>83<span class="nt">&lt;/ReasonCode&gt;</span>
+                    <span class="nt">&lt;/Chargeback&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+        <span class="nt">&lt;/Transaction&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialTransactions&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Liquidação Parcela + Desconto Chargeback</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+  ...
+    <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>1<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>1<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PaymentDate&gt;</span>20160609<span class="nt">&lt;/PaymentDate&gt;</span>
+                    <span class="nt">&lt;Chargeback&gt;</span>
+                        <span class="nt">&lt;Id&gt;</span>149222320<span class="nt">&lt;/Id&gt;</span>
+                        <span class="nt">&lt;Amount&gt;</span>678.454400<span class="nt">&lt;/Amount&gt;</span>
+                        <span class="nt">&lt;Date&gt;</span>20160520<span class="nt">&lt;/Date&gt;</span>
+                        <span class="nt">&lt;ChargeDate&gt;</span>20160609<span class="nt">&lt;/ChargeDate&gt;</span>
+                        <span class="nt">&lt;ReasonCode&gt;</span>83<span class="nt">&lt;/ReasonCode&gt;</span>
+                    <span class="nt">&lt;/Chargeback&gt;</span>
+                    <span class="nt">&lt;PaymentId&gt;</span>1234567<span class="nt">&lt;/PaymentId&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+       <span class="nt">&lt;/Transaction&gt;</span>
+    ...
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+</code></pre>
+
+<p><aside class="notice">  Chargeback antes da liquidação da parcela
+<ul></p>
+
+<p><li>Caso o Chargeback ocorra antes da liquidação da parcela, o desconto virá no dia do pagamento da parcela, como no exemplo acima. Como o pagamento é igual ao desconto, os dois se anulam.</li></p>
+
+<p></ul></p>
+
+<p></aside> </p>
+
+<p><code class="prettyprint">Captura (10/05) &gt; Chargeback (20/05) &gt; Liquidação Parcela + Desconto do Chargeback (09/06)</code></p>
+
+<blockquote>
+<p>Captura</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+   <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>1<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;International&gt;</span>True<span class="nt">&lt;/International&gt;</span>
+            <span class="nt">&lt;AccountType&gt;</span>2<span class="nt">&lt;/AccountType&gt;</span>
+            <span class="nt">&lt;InstallmentType&gt;</span>1<span class="nt">&lt;/InstallmentType&gt;</span>
+            <span class="nt">&lt;NumberOfInstallments&gt;</span>3<span class="nt">&lt;/NumberOfInstallments&gt;</span>
+            <span class="nt">&lt;AuthorizedAmount&gt;</span>1099.000000<span class="nt">&lt;/AuthorizedAmount&gt;</span>
+            <span class="nt">&lt;CapturedAmount&gt;</span>694.000000<span class="nt">&lt;/CapturedAmount&gt;</span>
+            <span class="nt">&lt;AuthorizationCurrencyCode&gt;</span>986<span class="nt">&lt;/AuthorizationCurrencyCode&gt;</span>
+            <span class="nt">&lt;IssuerAuthorizationCode&gt;</span>054973<span class="nt">&lt;/IssuerAuthorizationCode&gt;</span>
+            <span class="nt">&lt;BrandId&gt;</span>1<span class="nt">&lt;/BrandId&gt;</span>
+            <span class="nt">&lt;CardNumber&gt;</span>411111******1111<span class="nt">&lt;/CardNumber&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>366.340000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>357.657742<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160609<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>2<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>366.330000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>357.647979<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160709<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>3<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>366.330000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>357.647979<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160809<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+        <span class="nt">&lt;/Transaction&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialTransactions&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Chargeback</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+   <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>1<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>366.340000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>357.657742<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160609<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                    <span class="nt">&lt;Chargeback&gt;</span>
+                        <span class="nt">&lt;Id&gt;</span>149222320<span class="nt">&lt;/Id&gt;</span>
+                        <span class="nt">&lt;Amount&gt;</span>357.657742<span class="nt">&lt;/Amount&gt;</span>
+                        <span class="nt">&lt;Date&gt;</span>20160520<span class="nt">&lt;/Date&gt;</span>
+                        <span class="nt">&lt;ChargeDate&gt;</span>20160609<span class="nt">&lt;/ChargeDate&gt;</span>
+                        <span class="nt">&lt;ReasonCode&gt;</span>83<span class="nt">&lt;/ReasonCode&gt;</span>
+                    <span class="nt">&lt;/Chargeback&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>2<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>366.330000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>357.647979<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;SuspendedByChargeback&gt;</span>True<span class="nt">&lt;/SuspendedByChargeback&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>3<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>366.330000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>357.647979<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;SuspendedByChargeback&gt;</span>True<span class="nt">&lt;/SuspendedByChargeback&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+        <span class="nt">&lt;/Transaction&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialTransactions&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Liquidação Parcela + Desconto do Chargeback</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+  ...
+    <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>1<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>1<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>366.340000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>357.657742<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PaymentDate&gt;</span>20160609<span class="nt">&lt;/PaymentDate&gt;</span>
+                    <span class="nt">&lt;Chargeback&gt;</span>
+                        <span class="nt">&lt;Id&gt;</span>149222320<span class="nt">&lt;/Id&gt;</span>
+                        <span class="nt">&lt;Amount&gt;</span>357.657742<span class="nt">&lt;/Amount&gt;</span>
+                        <span class="nt">&lt;Date&gt;</span>20160520<span class="nt">&lt;/Date&gt;</span>
+                        <span class="nt">&lt;ChargeDate&gt;</span>20160609<span class="nt">&lt;/ChargeDate&gt;</span>
+                        <span class="nt">&lt;ReasonCode&gt;</span>83<span class="nt">&lt;/ReasonCode&gt;</span>
+                    <span class="nt">&lt;/Chargeback&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+       <span class="nt">&lt;/Transaction&gt;</span>
+    ...
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+</code></pre>
+
+<p><aside class="notice">  Parcelas suspensas por Chargeback</p>
+
+<ul>
+
+<li>Em transações parceladas, caso o chargeback ocorra após o pagamento ou confirmação de uma parcela, as demais serão suspensas e em caso de reapresentação, reagendadas.</li>
+
+</ul>
+
+<p></aside></p>
+
+<p><aside class="success">  ChargebackRefund</p>
+
+<ul>
+
+<li>Se uma parcela é reapresentada após chargeback ela aparecerá em `FinancialTransaction` no dia em que foi realizado a reapresentação e em `FinancialTransactionsAccounts` no dia que for pago ao lojista a reapresentação.</li>
+
+</ul>
+
+<p></aside></p>
+<h2 id='exemplos-de-ciclos-de-vida-do-chargebackrefund'>Exemplos de ciclos de vida do ChargebackRefund:</h2>
+<blockquote>
+<p><code class="prettyprint">Captura (10/05) &gt; Chargeback (20/05) &gt; Liquidação Parcela + Desconto do Chargeback (09/06) &gt; ChargebackRefund (10/06) &gt; Liquidação ChargebackRefund (11/06)</code></p>
+
+<p>Captura</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+   <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>1<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;International&gt;</span>True<span class="nt">&lt;/International&gt;</span>
+            <span class="nt">&lt;AccountType&gt;</span>2<span class="nt">&lt;/AccountType&gt;</span>
+            <span class="nt">&lt;InstallmentType&gt;</span>1<span class="nt">&lt;/InstallmentType&gt;</span>
+            <span class="nt">&lt;NumberOfInstallments&gt;</span>1<span class="nt">&lt;/NumberOfInstallments&gt;</span>
+            <span class="nt">&lt;AuthorizedAmount&gt;</span>694.000000<span class="nt">&lt;/AuthorizedAmount&gt;</span>
+            <span class="nt">&lt;CapturedAmount&gt;</span>694.000000<span class="nt">&lt;/CapturedAmount&gt;</span>
+            <span class="nt">&lt;AuthorizationCurrencyCode&gt;</span>986<span class="nt">&lt;/AuthorizationCurrencyCode&gt;</span>
+            <span class="nt">&lt;IssuerAuthorizationCode&gt;</span>054973<span class="nt">&lt;/IssuerAuthorizationCode&gt;</span>
+            <span class="nt">&lt;BrandId&gt;</span>1<span class="nt">&lt;/BrandId&gt;</span>
+            <span class="nt">&lt;CardNumber&gt;</span>411111******1111<span class="nt">&lt;/CardNumber&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160609<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+        <span class="nt">&lt;/Transaction&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialTransactions&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Chargeback</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+   <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>1<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160609<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                    <span class="nt">&lt;Chargeback&gt;</span>
+                        <span class="nt">&lt;Id&gt;</span>149222320<span class="nt">&lt;/Id&gt;</span>
+                        <span class="nt">&lt;Amount&gt;</span>678.454400<span class="nt">&lt;/Amount&gt;</span>
+                        <span class="nt">&lt;Date&gt;</span>20160520<span class="nt">&lt;/Date&gt;</span>
+                        <span class="nt">&lt;ChargeDate&gt;</span>20160609<span class="nt">&lt;/ChargeDate&gt;</span>
+                        <span class="nt">&lt;ReasonCode&gt;</span>83<span class="nt">&lt;/ReasonCode&gt;</span>
+                    <span class="nt">&lt;/Chargeback&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+        <span class="nt">&lt;/Transaction&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialTransactions&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Liquidação Parcela + Desconto Chargeback</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+  ...
+    <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>0<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>1<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>1<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PaymentDate&gt;</span>20160609<span class="nt">&lt;/PaymentDate&gt;</span>
+                    <span class="nt">&lt;Chargeback&gt;</span>
+                        <span class="nt">&lt;Id&gt;</span>149222320<span class="nt">&lt;/Id&gt;</span>
+                        <span class="nt">&lt;Amount&gt;</span>678.454400<span class="nt">&lt;/Amount&gt;</span>
+                        <span class="nt">&lt;Date&gt;</span>20160520<span class="nt">&lt;/Date&gt;</span>
+                        <span class="nt">&lt;ChargeDate&gt;</span>20160609<span class="nt">&lt;/ChargeDate&gt;</span>
+                        <span class="nt">&lt;ReasonCode&gt;</span>83<span class="nt">&lt;/ReasonCode&gt;</span>
+                    <span class="nt">&lt;/Chargeback&gt;</span>
+                    <span class="nt">&lt;PaymentId&gt;</span>1234567<span class="nt">&lt;/PaymentId&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+       <span class="nt">&lt;/Transaction&gt;</span>
+    ...
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>ChargebackRefund</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactions&gt;</span>
+  ...
+   <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>1<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160609<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                    <span class="nt">&lt;ChargebackRefund&gt;</span>
+                        <span class="nt">&lt;Id&gt;</span>149222320<span class="nt">&lt;/Id&gt;</span>
+                        <span class="nt">&lt;Amount&gt;</span>678.454400<span class="nt">&lt;/Amount&gt;</span>
+                        <span class="nt">&lt;Date&gt;</span>20160610<span class="nt">&lt;/Date&gt;</span>
+                        <span class="nt">&lt;PaymentDate&gt;</span>20160611<span class="nt">&lt;/PaymentDate&gt;</span>
+                        <span class="nt">&lt;ReasonCode&gt;</span>83<span class="nt">&lt;/ReasonCode&gt;</span>
+                    <span class="nt">&lt;/ChargebackRefund&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+        <span class="nt">&lt;/Transaction&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialTransactions&gt;</span>
+</code></pre>
+
+<blockquote>
+<p>Liquidação ChargebackRefund</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialTransactionsAccounts&gt;</span>
+  ...
+   <span class="nt">&lt;Transaction&gt;</span>
+            <span class="nt">&lt;Events&gt;</span>
+                <span class="nt">&lt;CancellationCharges&gt;</span>0<span class="nt">&lt;/CancellationCharges&gt;</span>
+                <span class="nt">&lt;Cancellations&gt;</span>0<span class="nt">&lt;/Cancellations&gt;</span>
+                <span class="nt">&lt;Captures&gt;</span>0<span class="nt">&lt;/Captures&gt;</span>
+                <span class="nt">&lt;ChargebackRefunds&gt;</span>1<span class="nt">&lt;/ChargebackRefunds&gt;</span>
+                <span class="nt">&lt;Chargebacks&gt;</span>0<span class="nt">&lt;/Chargebacks&gt;</span>
+                <span class="nt">&lt;Payments&gt;</span>0<span class="nt">&lt;/Payments&gt;</span>
+            <span class="nt">&lt;/Events&gt;</span>
+            <span class="nt">&lt;AcquirerTransactionKey&gt;</span>99960072739732<span class="nt">&lt;/AcquirerTransactionKey&gt;</span>
+            <span class="nt">&lt;InitiatorTransactionKey&gt;</span>123456789<span class="nt">&lt;/InitiatorTransactionKey&gt;</span>
+            <span class="nt">&lt;AuthorizationDateTime&gt;</span>20160509154748<span class="nt">&lt;/AuthorizationDateTime&gt;</span>
+            <span class="nt">&lt;CaptureLocalDateTime&gt;</span>20160510082639<span class="nt">&lt;/CaptureLocalDateTime&gt;</span>
+            <span class="nt">&lt;Poi&gt;</span>
+                <span class="nt">&lt;PoiType&gt;</span>4<span class="nt">&lt;/PoiType&gt;</span>
+            <span class="nt">&lt;/Poi&gt;</span>
+            <span class="nt">&lt;Installments&gt;</span>
+                <span class="nt">&lt;Installment&gt;</span>
+                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
+                    <span class="nt">&lt;GrossAmount&gt;</span>694.000000<span class="nt">&lt;/GrossAmount&gt;</span>
+                    <span class="nt">&lt;NetAmount&gt;</span>678.454400<span class="nt">&lt;/NetAmount&gt;</span>
+                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20160609<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+                    <span class="nt">&lt;ChargebackRefund&gt;</span>
+                        <span class="nt">&lt;Id&gt;</span>149222320<span class="nt">&lt;/Id&gt;</span>
+                        <span class="nt">&lt;Amount&gt;</span>678.454400<span class="nt">&lt;/Amount&gt;</span>
+                        <span class="nt">&lt;Date&gt;</span>20160610<span class="nt">&lt;/Date&gt;</span>
+                        <span class="nt">&lt;PaymentDate&gt;</span>20160611<span class="nt">&lt;/PaymentDate&gt;</span>
+                        <span class="nt">&lt;ReasonCode&gt;</span>83<span class="nt">&lt;/ReasonCode&gt;</span>
+                    <span class="nt">&lt;/ChargebackRefund&gt;</span>
+                <span class="nt">&lt;/Installment&gt;</span>
+            <span class="nt">&lt;/Installments&gt;</span>
+        <span class="nt">&lt;/Transaction&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialTransactionsAccounts&gt;</span>
+</code></pre>
+
+<p><aside class="warning"> Atenção </p>
+
+<ul>
+
+<li>Se com uma mesma transação ocorrer mais de um evento no mesmo dia, apenas um nó `Transaction` é criado para essa transação e as diversas modificações estarão descritas no nó `Events` (Ex: Uma transação capturada e cancelada no mesmo dia aparecerá com os nós `Captures` e `Cancellations` com o valor diferente de zero)</li>
+
+</ul>
+
+<p></aside></p>
+
+<p><aside class="success"> Event</p>
+
+<ul>
+
+<li>Além das transações do cliente a conciliação contempla eventos financeiros, como aluguéis de POS, ajustes financeiros e transferência interna.</li>
+
+</ul>
+
+<p></aside></p>
+
+<p>Quando ocorre um lançamento de um evento financeiro para o cliente um nó <code class="prettyprint">event</code> é criado em <code class="prettyprint">FinancialEvents</code>, no dia em que esse evento for pago o mesmo nó aparecerá sob <code class="prettyprint">FinancialEventsAccounts</code>.</p>
+
+<blockquote>
+<p>Exemplos de ciclos de vida do ChargebackRefund:</p>
+
+<p><code class="prettyprint">Evento (10/05) &gt; Liquidação Evento (20/05)</code></p>
+
+<p>Event</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialEvents&gt;</span>
+  ...
+  <span class="nt">&lt;Event&gt;</span>
+        <span class="nt">&lt;EventId&gt;</span>53162534<span class="nt">&lt;/EventId&gt;</span>
+        <span class="nt">&lt;Description&gt;</span>PosRent<span class="nt">&lt;/Description&gt;</span>
+        <span class="nt">&lt;Type&gt;</span>22<span class="nt">&lt;/Type&gt;</span>
+        <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20150511<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
+        <span class="nt">&lt;Amount&gt;</span>-99.000000<span class="nt">&lt;/Amount&gt;</span>
+  <span class="nt">&lt;/Event&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialEvents&gt;</span>
+
+</code></pre>
+
+<blockquote>
+<p>Liquidação Evento</p>
+</blockquote>
+<pre class="highlight xml"><code>
+<span class="nt">&lt;FinancialEventsAccounts&gt;</span>
+  ...
+  <span class="nt">&lt;Event&gt;</span>
+        <span class="nt">&lt;EventId&gt;</span>53162534<span class="nt">&lt;/EventId&gt;</span>
+        <span class="nt">&lt;Description&gt;</span>PosRent<span class="nt">&lt;/Description&gt;</span>
+        <span class="nt">&lt;Type&gt;</span>22<span class="nt">&lt;/Type&gt;</span>
+        <span class="nt">&lt;PaymentDate&gt;</span>20150511<span class="nt">&lt;/PaymentDate&gt;</span>
+        <span class="nt">&lt;Amount&gt;</span>-99.000000<span class="nt">&lt;/Amount&gt;</span>
+  <span class="nt">&lt;/Event&gt;</span>
+  ...
+<span class="nt">&lt;/FinancialEventsAccounts&gt;</span>
+</code></pre>
+<h2 id='exemplo-de-layout-v2'>Exemplo de Layout v2</h2><h2 id='exemplo-de-arquivo-completo'>Exemplo de Arquivo Completo</h2><pre class="highlight xml"><code>
+<span class="nt">&lt;Conciliation&gt;</span>
     <span class="nt">&lt;Header&gt;</span>
         <span class="nt">&lt;GenerationDateTime&gt;</span>20151013145131<span class="nt">&lt;/GenerationDateTime&gt;</span>
         <span class="nt">&lt;StoneCode&gt;</span>123456789<span class="nt">&lt;/StoneCode&gt;</span>
@@ -1291,16 +2527,6 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
                     <span class="nt">&lt;/Billing&gt;</span>
                 <span class="nt">&lt;/Cancellation&gt;</span>
             <span class="nt">&lt;/Cancellations&gt;</span>
-            <span class="nt">&lt;Installments&gt;</span>
-                <span class="nt">&lt;Installment&gt;</span>
-                    <span class="nt">&lt;InstallmentNumber&gt;</span>1<span class="nt">&lt;/InstallmentNumber&gt;</span>
-                    <span class="nt">&lt;GrossAmount&gt;</span>20.000000<span class="nt">&lt;/GrossAmount&gt;</span>
-                    <span class="nt">&lt;NetAmount&gt;</span>19.389317<span class="nt">&lt;/NetAmount&gt;</span>
-                    <span class="nt">&lt;PrevisionPaymentDate&gt;</span>20150927<span class="nt">&lt;/PrevisionPaymentDate&gt;</span>
-                    <span class="nt">&lt;AdvanceRateAmount&gt;</span>0.212683<span class="nt">&lt;/AdvanceRateAmount&gt;</span>
-                    <span class="nt">&lt;AdvancedReceivableOriginalPaymentDate&gt;</span>20151017<span class="nt">&lt;/AdvancedReceivableOriginalPaymentDate&gt;</span>
-                <span class="nt">&lt;/Installment&gt;</span>
-            <span class="nt">&lt;/Installments&gt;</span>
         <span class="nt">&lt;/Transaction&gt;</span>
         <span class="nt">&lt;Transaction&gt;</span>
             <span class="nt">&lt;Events&gt;</span>
@@ -1322,6 +2548,7 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
             <span class="nt">&lt;CapturedAmount&gt;</span>50.000000<span class="nt">&lt;/CapturedAmount&gt;</span>
             <span class="nt">&lt;AuthorizationCurrencyCode&gt;</span>986<span class="nt">&lt;/AuthorizationCurrencyCode&gt;</span>
             <span class="nt">&lt;IssuerAuthorizationCode&gt;</span>094736<span class="nt">&lt;/IssuerAuthorizationCode&gt;</span>
+            <span class="nt">&lt;International&gt;</span>True<span class="nt">&lt;/International&gt;</span>
             <span class="nt">&lt;BrandId&gt;</span>2<span class="nt">&lt;/BrandId&gt;</span>
             <span class="nt">&lt;CardNumber&gt;</span>132456******1122<span class="nt">&lt;/CardNumber&gt;</span>
             <span class="nt">&lt;Poi&gt;</span>
@@ -1357,6 +2584,7 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
             <span class="nt">&lt;CanceledAmount&gt;</span>125.790000<span class="nt">&lt;/CanceledAmount&gt;</span>
             <span class="nt">&lt;AuthorizationCurrencyCode&gt;</span>986<span class="nt">&lt;/AuthorizationCurrencyCode&gt;</span>
             <span class="nt">&lt;IssuerAuthorizationCode&gt;</span>661137<span class="nt">&lt;/IssuerAuthorizationCode&gt;</span>
+            <span class="nt">&lt;International&gt;</span>True<span class="nt">&lt;/International&gt;</span>
             <span class="nt">&lt;BrandId&gt;</span>1<span class="nt">&lt;/BrandId&gt;</span>
             <span class="nt">&lt;CardNumber&gt;</span>123456******1122<span class="nt">&lt;/CardNumber&gt;</span>
             <span class="nt">&lt;Poi&gt;</span>
@@ -1445,7 +2673,7 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
             <span class="nt">&lt;EventId&gt;</span>38883564<span class="nt">&lt;/EventId&gt;</span>
             <span class="nt">&lt;PaymentId&gt;</span>109963<span class="nt">&lt;/PaymentId&gt;</span>
             <span class="nt">&lt;Description&gt;</span>FinancialAdjustment<span class="nt">&lt;/Description&gt;</span>
-            <span class="nt">&lt;Type&gt;</span>-27<span class="nt">&lt;/Type&gt;</span>
+            <span class="nt">&lt;Type&gt;</span>5<span class="nt">&lt;/Type&gt;</span>
             <span class="nt">&lt;PaymentDate&gt;</span>20150920<span class="nt">&lt;/PaymentDate&gt;</span>
             <span class="nt">&lt;Amount&gt;</span>900.890000<span class="nt">&lt;/Amount&gt;</span>
         <span class="nt">&lt;/Event&gt;</span>
@@ -1454,6 +2682,8 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
         <span class="nt">&lt;Payment&gt;</span>
             <span class="nt">&lt;Id&gt;</span>109963<span class="nt">&lt;/Id&gt;</span>
             <span class="nt">&lt;TotalAmount&gt;</span>1478.77<span class="nt">&lt;/TotalAmount&gt;</span>
+            <span class="nt">&lt;TotalFinancialAccountsAmount&gt;</span>1478.77<span class="nt">&lt;/TotalFinancialAccountsAmount&gt;</span>
+            <span class="nt">&lt;LastNegativeAmount&gt;</span>0.00<span class="nt">&lt;/LastNegativeAmount&gt;</span>
             <span class="nt">&lt;FavoredBankAccount&gt;</span>
                 <span class="nt">&lt;BankCode&gt;</span>1<span class="nt">&lt;/BankCode&gt;</span>
                 <span class="nt">&lt;BankBranch&gt;</span>24111<span class="nt">&lt;/BankBranch&gt;</span>
@@ -1474,51 +2704,69 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
         <span class="nt">&lt;ChargedEventsQuantity&gt;</span>0<span class="nt">&lt;/ChargedEventsQuantity&gt;</span>
     <span class="nt">&lt;/Trailer&gt;</span>
 <span class="nt">&lt;/Conciliation&gt;</span>
+
 </code></pre>
-<h2 id='arquivos-de-teste'>Arquivos de Teste</h2>
-<p>Disponibilizamos 6 arquivos para o uso em testes, esses arquivos mostram o histórico de seis transações, são elas e seus respectivos históricos:</p>
+<h1 id='apndice'>Apêndice</h1><h2 id='accounttype'>AccountType</h2>
+<p>Retornar à <a href="#FinancialTransaction">FinancialTransaction</a></p>
 
 <table><thead>
 <tr>
-<th>AcquirerTransactionKey</th>
-<th>Histórico</th>
+<th>Valor</th>
+<th>Descrição</th>
 </tr>
 </thead><tbody>
 <tr>
-<td>11111111111111</td>
-<td>Captura -&gt; Pagamento</td>
+<td>1</td>
+<td>Debit</td>
 </tr>
 <tr>
-<td>22222222222222</td>
-<td>Captura -&gt; Cancelamento -&gt; Pagamento</td>
-</tr>
-<tr>
-<td>33333333333333</td>
-<td>Captura -&gt; ChargeBack -&gt; Pagamento</td>
-</tr>
-<tr>
-<td>44444444444444</td>
-<td>Captura -&gt; Chargeback -&gt; ChargebackRefund -&gt; Pagamento</td>
-</tr>
-<tr>
-<td>55555555555555</td>
-<td>Captura -&gt; Pagamento -&gt; ChargeBack -&gt; Pagamento -&gt; ChargebackRefund -&gt; Pagamento</td>
-</tr>
-<tr>
-<td>66666666666666</td>
-<td>Captura -&gt; Pagamento -&gt; Cancelamento -&gt; Pagamento</td>
+<td>2</td>
+<td>Credit</td>
 </tr>
 </tbody></table>
-<h3 id='arquivos'>Arquivos:</h3>
-<ul>
-<li><a href="attachment/HomologacaoV2/20151012.xml">Arquivo do dia 20151012</a></li>
-<li><a href="attachment/HomologacaoV2/20151013.xml">Arquivo do dia 20151013</a></li>
-<li><a href="attachment/HomologacaoV2/20151016.xml">Arquivo do dia 20151016</a></li>
-<li><a href="attachment/HomologacaoV2/20151017.xml">Arquivo do dia 20151017</a></li>
-<li><a href="attachment/HomologacaoV2/20151020.xml">Arquivo do dia 20151020</a></li>
-<li><a href="attachment/HomologacaoV2/20151021.xml">Arquivo do dia 20151021</a></li>
-</ul>
-<h1 id='apndice'>Apêndice</h1><h3 id='capturemethodsupv1sup--poitypesupv2sup'>CaptureMethod<sup>v1</sup> / POIType<sup>v2</sup></h3>
+<h2 id='installmenttype'>InstallmentType</h2>
+<p>Retornar à <a href="#FinancialTransaction">FinancialTransaction</a></p>
+
+<table><thead>
+<tr>
+<th>Valor</th>
+<th>Descrição</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>1</td>
+<td>À vista lojista</td>
+</tr>
+<tr>
+<td>2</td>
+<td>parcelado lojista</td>
+</tr>
+<tr>
+<td>3</td>
+<td>parcelado emissor</td>
+</tr>
+</tbody></table>
+<h2 id='brandid'>BrandId</h2>
+<p>Retornar à <a href="#FinancialTransaction">FinancialTransaction</a></p>
+
+<table><thead>
+<tr>
+<th>Valor</th>
+<th>Descrição</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>1</td>
+<td>Visa</td>
+</tr>
+<tr>
+<td>2</td>
+<td>MasterCard</td>
+</tr>
+</tbody></table>
+<h2 id='poitype'>POIType</h2>
+<p>Retornar à <a href="#FinancialTransaction">FinancialTransaction</a></p>
+
 <table><thead>
 <tr>
 <th>Valor</th>
@@ -1542,81 +2790,38 @@ por exemplo uma transação realizada no dia 24-08 e cancelada no dia 19-10</p>
 <td>ECOMMERCE</td>
 </tr>
 </tbody></table>
-<h3 id='brandsupv1v2sup'>Brand<sup>v1v2</sup></h3>
+<h2 id='type'>Type</h2>
+<p>Retornar à <a href="#FinancialEvents">FinancialEvents</a></p>
+
 <table><thead>
 <tr>
 <th>Valor</th>
 <th>Descrição</th>
 </tr>
 </thead><tbody>
-<tr>
-<td>1</td>
-<td>Visa</td>
-</tr>
 <tr>
 <td>2</td>
-<td>MasterCard</td>
-</tr>
-</tbody></table>
-<h3 id='producttypesupv1sup--accounttypesupv2sup'>ProductType<sup>v1</sup> / AccountType<sup>v2</sup></h3>
-<table><thead>
-<tr>
-<th>Valor</th>
-<th>Descrição</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>1</td>
-<td>Debit</td>
+<td>InternalTransfer (Transferência Interna)</td>
 </tr>
 <tr>
-<td>2</td>
-<td>Credit</td>
+<td>5</td>
+<td>FinancialAdjustment (Ajuste financeiro)</td>
 </tr>
-</tbody></table>
-<h3 id='saleplantypesupv1sup-installmenttypesupv2sup'>SalePlanType<sup>v1</sup> /InstallmentType<sup>v2</sup></h3>
-<table><thead>
-<tr>
-<th>Valor</th>
-<th>Descrição</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>1</td>
-<td>à vista lojista</td>
-</tr>
-<tr>
-<td>2</td>
-<td>parcelado lojista</td>
-</tr>
-<tr>
-<td>3</td>
-<td>parcelado emissor</td>
-</tr>
-</tbody></table>
-<h3 id='typesupv1v2sup'>Type<sup>v1v2</sup></h3>
-<table><thead>
-<tr>
-<th>Valor</th>
-<th>Descrição</th>
-</tr>
-</thead><tbody>
 <tr>
 <td>22</td>
 <td>PosRent (Aluguel de POS)</td>
 </tr>
-<tr>
-<td>23</td>
-<td>InternalTransfer (Transferência Interna)</td>
-</tr>
-<tr>
-<td>27</td>
-<td>FinancialAdjustment (Ajuste financeiro)</td>
-</tr>
 </tbody></table>
+<h1 id='dvidas'>Dúvidas</h1>
+<p>Tem dúvidas ou sugestões? Entre em contato conosco: <a href="mailto:integracoes@stone.combr">integracoes@stone.com.br</a></p>
 
       </div>
       <div class="dark-box">
+          <div class="lang-selector">
+                <a href="#" data-language-name="shell">cURL</a>
+                <a href="#" data-language-name="json">JSON</a>
+                <a href="#" data-language-name="xml">XML</a>
+          </div>
       </div>
     </div>
   </body>

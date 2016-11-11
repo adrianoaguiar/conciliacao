@@ -2,8 +2,8 @@
 title: Conciliação Stone
 
 language_tabs:
- - curl
- - JSON
+- shell: CURL
+- json: JSON
 
 search: true
 ---

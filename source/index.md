@@ -1,856 +1,2026 @@
 ---
-title: Bem vindo à STONE ONLINE!
+title: Conciliação Stone
 
 language_tabs:
-- xml: XML Comentado
-- shell: cURL
+
+- shell: CURL
+- json: JSON
 
 search: true
 ---
 
-# Bem vindo à STONE ONLINE
+# O que é?
 
-Apresentaremos aqui, tudo o que você precisa para se conectar com a nossa estrutura de pagamento virtual (E-commerce).
+## Conciliação Stone
 
-**INTRODUÇÃO**
+A **Conciliação Stone** é uma ferramenta que disponibiliza diariamente aos estabelecimentos, a demonstração das transações realizadas e suas respectivas informações financeiras, aluguel de POS, ocorridos no dia referenciado. Esta ferramenta permite o acompanhamento desde a captura até o pagamento/desconto de cada uma das transações e lançamentos realizados.
 
-Todas as compras de e-commerce têm inicio com o cliente ( portador do cartão ) escolhendo um ou mais produtos, adicionando-os ao carrinho, revisando os itens escolhidos, até chegar à etapa de pagamento. 
+Com a **Conciliação Stone**, o lojista consegue visualizar de forma bastante clara, o valor líquido e bruto de cada parcela, o valor líquido e bruto de cancelamento parcial e total, quais parcelas da transação foram antecipadas e qual foi o custo da antecipação de cada parcela, chargebacks a serem descontados, etc.
 
-Uma vez que o portador do cartão efetua o pagamento através de cartão de crédito, voucher, etc, dois novos participantes passam a ser comunicar através de trocas de mensagens, para autorizar a transação e fazer a sua captura:
+Tudo isto em um mesmo lugar, sem a necessidade de tratar vários arquivos com layouts diferentes. Com a **Conciliação Stone**, o cliente obtém o arquivo de conciliação diretamente conosco, de maneira segura, através de um Webservice que retorna o arquivo de conciliação.
 
-1. Adquirente STONE
+# Como obter seu arquivo
 
-2. Banco emissor do cartão 
+## O serviço de conciliação
 
-Adquirente é a empresa responsável por fazer a comunicação com o emissor ( banco ). Cada emissor possui seu próprio fluxo, meio de comunicação, tecnologia de segurança, protocolo, etc. Quando um e-commerce faz a integração através de um adquirente, está se beneficiando de todo um investimento
-em tecnologias e segurança, além de um mecanismo único para se comunicar com o banco emissor, independentemente da tecnologia utilizada pelo banco.
+O webservice de conciliação consiste em uma requisição HTTP autenticada, utilizando uma camada segura - SSL/TLS, para a obtenção de um arquivo com todos os eventos ocorridos no dia requisitado.
 
-Por exemplo, se um e-commerce precisa aceitar pagamentos através de três bandeiras de cartão de crédito diferentes, seriam necessários três processos de integração diferentes. Como o adquirente já fez esse investimento no processo de integração, o custo de integração através da adquirente é muito menor para a loja, do que se a integração fosse feita diretamente com as bandeiras.
+Esse arquivo contém todas as transações que foram capturadas no dia requisitado, ou seja, todas as transações capturadas no dia para o qual a conciliação está sendo gerada. **É importante ressaltar que o arquivo contém apenas as transações que foram capturadas e não as que somente foram autorizadas, uma vez que esse tipo de transação não gera movimento financeiro**.
 
-# Fluxo de comunicação
+O arquivo adota o modelo Previsão-Liquidação, diferente do que é praticado no mercado. Isso quer dizer que no Arquivo de Conciliação da Stone, estão presentes informações sobre a previsão de pagamento das transações e dos ajustes (agenda); e informações sobre a liquidação das transações e dos ajustes (extrato). **É importante ressaltar que em prol da maior transparência, as transações canceladas não são tratadas como ajustes**.
 
-Toda a comunicação começa com o portador optando por fazer o pagamento com um cartão aceito pelo e-commerce. O e-commerce, por sua vez, envia uma mensagem para o adquirente, solicitando o processamento do pagamento. Assim como ocorre com pagamentos nas maquininhas, o cliente precisará informar seus dados de autenticação e o pagamento poderá ser autorizado ou negado, seja por informações incorretas, ou algum eventual problema.
+## Obtendo o arquivo
 
-A integração com a Stone ocorrerá através do uso (consumo) de um webservice REST através de requisições HTTP.
+As requisições devem ser enviadas para o serviço de conciliação utilizando o método **GET** para o endpoint `https://conciliation.stone.com.br/conciliation-file/{dataReferencia}` ou `https://conciliation.stone.com.br/conciliation-file/v{numeroversao}/{dataReferencia}`, onde `{dataReferencia}` é a data em que as transações foram capturadas, no formato yyyyMMdd e {numeroversao} o número da versão do layout desejado.
 
-![fluxo](/images/fluxo.png)
+Por se tratar de informações sigilosas para a empresa, tanto a requisição quanto a resposta trafegam em uma camada segura criptografada e as requisições precisam, necessariamente, estar autenticadas. Essa autenticação consiste no envio de um campo de cabeçalho HTTP `Authorization` contendo a chave de afiliação da loja `AffiliationKey`.
 
-# Crendenciais de Acesso
-
-##**HOMOLOGAÇÃO**
-
-Para iniciar a integração com o nosso webservice solicite sua credencial de acesso ao nosso time de integrações pelo e-mail **integracoes@stone.com.br**.
-
-Você deve encaminhar um e-mail com as seguintes informações:
-
-* O nome da empresa parceira que realizará transações na Stone
-* O CNPJ da empresa
-* Uma descrição sucinta do negócio parceiro (em uma frase)
-* E-mail para onde a credencial deve ser enviada
-
-Você receberá um e-mail com uma `SAK` (SaleAffiliationKey) com um formato como este: **BFDB58AB9A8A48828C2647E18B7F1114**
-
-##**EM PRODUÇÃO**
-
-Uma vez que a etapa de homologação for concluída você precisará de uma credencial de PRODUÇÃO que será encaminhada após o seu cadastro com a Stone.
-
-Para solicitar seu cadastro encaminhe um e-mail para o nosso time comercial [**ecommerce@stone.com.br**](mailto:ecommerce@stone.com.br) lhe auxiliar no processo de credenciamento.
-
-# Protocolo
-
-Durante o fluxo de comunicação, algumas mensagens serão enviadas a partir da loja online, para o Adquirente. Essas mensagens são enviadas no formato XML através do protocolo HTTP, utilizando a arquitetura REST. Essa arquitetura permite que representações da transação possam ser enviadas ou recebidas pela loja online, segundo seu estado atual.
-
-Por exemplo, para criar uma autorização, a loja deverá enviar uma mensagem [AcceptorAuthorisationRequest](#) para o adquirente, que irá checar com o banco emissor se o cliente consumidor possui recursos para financiar o pagamento. Nessa mensagem, além dos dados de credenciamento da loja, a loja enviará os dados do dono do cartão e os dados da transação, como valor total, número de parcelas, etc.
-
-# Requisições e funcionalidades
-
-Todas as mensagens serão enviadas através do protocolo HTTP. Todas as mensagens são enviadas utilizando o método **POST** para os seguintes endpoints:
-
-* Para o ambiente de produção [https://e-commerce.stone.com.br](https://e-commerce.stone.com.br).
-* Para o ambiente de homologação  [https://sandbox-auth-integration.stone.com.br](https://sandbox-auth-integration.stone.com.br).
-
-As funcionalidades disponíveis para as requisições são:
-
-1. Autorização (**AUTHORIZE**)
-
-2. Captura posterior (**COMPLETIONADVICE**)
-
-3. Cancelamento (**CANCELLATION**)
-
-4. Ajuda (**HELP**)
-
-## Mensagens de Autorização
-
-### Autorização com Captura
-
-A autorização com captura é, provavelmente, um dos casos mais comuns de integração. O cliente chega à loja, escolhe seus produtos, adiciona-os ao carrinho, finaliza o pedido e faz o pagamento. A loja, ao receber a solicitação de finalização do pedido, faz a integração com a Stone, solicita a autorização e faz a captura do valor autorizado automaticamente. É o processo normal da maioria dos ecommerces.
-
-![autorização com captura](/images/autorizacao-e-captura.png)
-
-1. O estabelecimento envia uma mensagem `AcceptorAuthorisationRequest` para o adquirente solicitando autorização, informando que deseja realizar a captura financeira atribuindo o valor da tag `<TxCaptr>` como `true`
-2. `AcceptorAuthorisationResponse` é devolvido pelo adquirente, informando ao estabelecimento sobre o êxito do pedido, uma vez que o adquirente tenha autorizado a transação sem a necessidade de envio de captura.
-
-<aside class="notice">A tag TxCaptr deve ser enviada com valor TRUE</aside>
-
-* [Exemplo de XML de requisição para autorização com captura](/attachment/caso-1_autorizacao-e-captura.xml)
+É possível, ainda, que o volume de operações e eventos seja relativamente grande. Para agilizar a transferência do arquivo, é possível solicitá-lo de forma compactada. Caso seja necessário que o arquivo esteja compactado, o sistema conciliador deve incluir o campo de cabeçalho HTTP `Accept-Encoding: gzip` na requisição ao serviço.
 
 
-### POST /Authorize
+- Layout v2
 
-A autorização é o processo de troca de mensagens entre o estabelecimento e o adquirente onde é verificado se portador do cartão possui ou não saldo suficiente para a realização de um pagamento. A diferença entre a mensagem de autorização com captura automática e com captura posterior, está no elemento `TxCaptr` que deve ser informado `true` para Autorização com Captura, ou `false` para Autorização com Captura posterior.
+```shell
 
-### Requisição de autorização
-A mensagem de `AcceptorAuthorisationRequest` é enviada pelo estabelecimento para a url [https://e-commerce.stone.com.br/Authorize](https://e-commerce.stone.com.br/Authorize) (produção) ou [https://sandbox-auth-integration.stone.com.br/Authorize](https://sandbox-auth-integration.stone.com.br/Authorize) (homologação) para o adquirente, para checar junto ao banco que a conta associada ao cartão possui recursos para financiar o pagamento. Este controle inclui a validação dos dados do cartão e todos os dados adicionais previstos.
+curl \
+-H "Authorization: affiliation-key" \
+-H "Accept-Encoding: gzip" \
+"https://conciliation.stone.com.br/conciliation-file/v2/yyyyMMdd"
+
+```
+<aside class="success"> Pré-requisitos:
+
+<ol>
+
+<li><b>Conexão com a internet</b></li>
+
+<li><b>Protocolo de comunicação TLS 1.2</b></li>
+
+<li><b>AffiliationKey (AK)</b></li>
+
+</ol>
+
+</aside>
+
+# O Arquivo
+
+### Conciliation
+
+Nó principal do arquivo de conciliação
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| Header   | Container | ###### | Contém as informações do lojista e do arquivo |
+| FinancialTransactions | Container | ###### | Contém as transações que aconteceram com o lojista no dia requisitado |
+| FinancialEvents | Container | ###### | Contém os eventos financeiros lançados para o lojista no dia requisitado |
+| FinancialTransactionsAccounts | Container | ###### | Contém as transações que foram pagas/cobradas ao lojista no dia requisitado |
+|FinancialEventAccounts | Container | ###### | Contém os eventos que foram pagos/cobrados ao lojista no dia requisistado |
+| Payments | Container | ###### |  Contém informações dos pagamentos efetuados relativos as transações e eventos financeiros do arquivo. |
+| Trailer | Container | ###### | Contém os totalizadores e contadores do arquivo |
+
+### Header
+
+Descrição dos atributos dentro de **Header**
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| GenerationDateTime | Datetime | 14 | Datetime de geração do arquivo (Formato: aaaammddHHmmss)|
+| StoneCode | Num | 9 | Código identificador da loja |
+| LayoutVersion | Num | 3 | Versão do Layout do arquivo |
+| FileId | Num | 26 | Código identificador do arquivo |
+| ReferenceDate |Date|8| Data a que se refere o arquivo|
+
+### FinancialTransactions
+
+Descrição dos Containers e atributos dentro de *FinancialTransactions**.
+
+* Contém uma lista de **Transaction**
+
+### <t id="Transaction">Transaction</t>
+
+Nó filho de **FinancialTransactions** que contém as informações referentes à transação, como valor total da transação, número de parcelas da transação, etc.
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| [Events](#Events)| Container | ###### | Contém contadores dos eventos da transação no dia de referência do arquivo.|
+| AcquirerTransactionKey | Num | 14 | Identificador único da transação (NSU) gerado pela adquirente|
+| InitiatorTransactionKey | Alfa | 128 | Código recebido pelo sistema cliente |
+| AuthorizationDateTime| Datetime | 14 | Datetime da autorização (Formato: aaaammddHHmmss) |
+| CaptureLocalDateTime | Datetime | 14 | Datetime da captura (Formato: aaaammddHHmmss) no horario local da adquirente|
+| International* | Bool | # | Indica se é um cartão internacional (True/False)|
+| [AccountType*](#ProductType) | Alfa | 4 | Tipo de conta utilizada na transação crédito, débito, etc...* |
+| [InstallmentType*](#SalePlanType) | Alfa | 60 | Tipo de parcelamento utilizado na transação lojista/emissor* |
+| NumberOfInstallments* | Num | 4 | Número de parcelas* |
+| AuthorizedAmount* | Float | 20 | Valor autorizado* |
+| CapturedAmount* | Float | 20 | Valor capturado* |
+| CanceledAmount* | Float | 20 | Total cancelado* |
+| AuthorizationCurrencyCode* | Num | 4 | Código da moeda* |
+| IssuerAuthorizationCode* | Num | 6 | Código da autorização fornecido pelo emissor.* |
+| [BrandId*](#Brand) | Num | 2 | Identificador da bandeira do cartão* |
+| CardNumber* | Alfa | 19 | Número do cartão (truncado)* |
+| Poi | Container | ###### | Contém dados do Ponto de Interação (terminal) que realizou a transação|
+| **Cancellations**\** | Container | ###### | Contém informações referentes aos cancelamentos, como data de desconto do cancelamento e valor total do cancelamento.** |
+| **Installments**| Container | ###### | Contém as parcelas da transação. |
+
+
+<aside class="notice"> Informativo (Transaction)
+
+<ul>
+<li><b>* Elementos que aparecem apenas quando a transação é de captura</b> <em> &ltCaptures&gt1&lt/Captures&gt </em></li>
+
+<li><b>** Elemento que aparece apenas quando a transação é de cancelamento</b> <em> &ltCancellations&gt1&lt/Cancellations&gt</li>
+
+</ul>
+
+</aside>
+
+### <b id="Events">Events</b>
+
+Nó filho de Transaction, contém contadores dos eventos de uma transação no dia de referência do arquivo.
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| CancellationCharges | Num | 9 | Número de descontos de cancelamento|
+| Cancellations | Num | 9 | Número de cancelamentos|
+| Captures | Num | 9 | Número de capturas|
+| ChargebackRefunds | Num | 9 | Número de estornos de chargeback |
+| Chargebacks | Num | 9 | Número de chargebacks |
+| Payments | Num | 9 | Número de pagamentos |
+
+
+### Poi
+
+Contém dados do Ponto de Interação (terminal) que realizou a transação.
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| [PoiType](#CaptureMethod) | Num | 4 | Tipo do ponto de interação (e-commerce, pos, mobile, etc).|
+| SerialNumber | Num | 32 | Número de série do terminal, se existir |
+
+### Cancellations
+
+Contém uma lista de **Cancellation**
+
+### Cancellation
+
+Nó filho de **Cancellations** que contém as informações sobre o cancelamento de uma transação
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| OperationKey | Alfa | 32 | identificador único da operação de cancelamento|
+| CancellationDateTime | Datetime | 14 |Data hora do cancelamento (Formato: aaaammddHHmmss)|
+| ReturnedAmount | Float | 20 | Valor revertido e devolvido ao portador do cartão |
+| **Billing**\* | Collection | ###### | Lista de cobranças relativa ao cancelamento \* |
+
+<aside class="notice"> Informativo (Cancellation)
+
+<ul>
+<li><b>* Aparece apenas se a transação não tiver sido cancelada no mesmo dia da captura</b></li>
+</ul>
+
+</aside>
+
+### Billing
+
+Cobrança relativa ao cancelamento.
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| ChargedAmount | Float | 20 | Valor de desconto do cancelamento (descontado do lojista)|
+| PrevisionChargeDate | Datetime | 8 | Data prevista para cobrança  (Formato: aaaammdd) |
+
+
+### Installments
+
+Contém uma lista de **Installment** (parcelas)
+
+### Installment
+
+Nó filho de **Installments** que contém as informações sobre as parcelas de uma transação.
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| InstallmentNumber | Num | 2 | Número da parcela |
+| GrossAmount | Float | 20 | Valor bruto da parcela |
+| NetAmount | Float | 20 | Valor liquido da parcela |
+| PrevisionPaymentDate* | Datetime | 8 | Previsão da data de pagamento (Formato: aaaammdd)|
+| SuspendedByChargeback** | Bool | # | Este elemento aparecerá nas parcelas ainda não liquidadas quando uma transação sofrer Chargeback (Nunca aparecerá junto com PrevisionPaymentDate)|
+| **Chargeback**^ | Container | ###### | Contém chargebacks relativos a parcela** |
+| **ChargebackRefund**^^ | Container | ###### | Contém estornos de chargeback relativos a parcela\*** |
+
+<aside class="notice"> Informativo (Installment)
+
+<ul>
+ <li><b>* Elemento que aparecerá apenas quando a parcela não estiver suspensa por Chargeback</b></li>
+
+ <li><b>** Elemento que aparecerá apenas nas parcelas posteriores à parcela que sofreu Chargeback</b></li>
+
+ <li><b>^ Elemento só aparece quando houver `Chargeback`</b></li>
+ 
+ <li><b>^^ Elemento só aparece quando houver `Chargeback` ou `Liquidação do Chargeback` ou `Reapresentação de Chargeback`</b></li>
+</ul>
+</aside>
+
+
+### Chargeback
+
+Nó filho de **Installment** que contém informações sobre o chargeback, como data de desconto, Id do chargeback, data em que ocorreu o chargeback, etc.
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| Id | Num | 10 | Identificador do chargeback |
+| Amount | Float | 20 | Valor do chargeback |
+| Date | Date | 8 | Data em que ocorreu o chargeback. (Formato: aaaammdd) |
+| ChargeDate | Date | 8 | Data em que o chargeback será descontado. (Formato: aaaammdd) |
+| ReasonCode | Num | 8 | Código de motivo do chargeback informado pelo banco emissor |
+
+### ChargebackRefund
+
+Nó filho de **Installment** que contém informações sobre a reapresentação do chargeback, como a data em que ocorreu a reapresentação, data de pagamento, etc.
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| Id | Num | 10 | Identificador da reapresentação do chargeback |
+| Amount | Float | 20 | Valor da reapresentação do chargeback |
+| Date | Date | 8 | Data em que ocorreu a reapresentação do chargeback. (Formato: aaaammdd) |
+| PaymentDate | Date | 8 | Data em que a reapresentação o chargeback será creditada. (Formato: aaaammdd) |
+| ReasonCode | Num | 8 | Código de motivo do chargeback informado pelo banco emissor |
+
+## FinancialEvents
+
+Descrição dos Containers e atributos dentro de **FinancialEvents**.
+
+* Contém uma lista de **Event**
+
+### Event
+
+Nó filho de **FinancialEvents** , descreve os detalhes do evento ocorrido.
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| EventId | Num | 10 | Código identificador do evento |
+| Description | Alfa | 60 | Descrição do evento |
+| [Type](#Type) | Num | 2 | Tipo do evento |
+| PrevisionPaymentDate | Date | 8 | Previsão da data de cobrança |
+| Amount | Float | 20 | Valor do evento |
+
+## FinancialTransactionsAccounts
+
+Descrição dos Containers e atributos dentro de **FinancialTransactionsAccounts**.
+
+* Contém uma lista de **Transaction**
+
+Segue exatamente a mesma estrutura do nó **FinancialTransactions** descrito acima, com apenas algumas peculiariedades que serão demonstradas abaixo:
+
+### Transaction
+
+Nó filho de **FinancialTransactionsAccounts** que contém as informações referentes à transação, como valor total da transação, número de parcelas da transação, etc.
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| Events| Container | # | Igual ao descrito em [FinancialTransactions](#FinancialTransactions)|
+| AcquirerTransactionKey | Num | 14 | Identificador único da transação (NSU) gerado pela adquirente|
+| InitiatorTransactionKey | Alfa | 128 | Código recebido pelo sistema cliente |
+| AuthorizationDateTime| Datetime | 14 | Datetime da autorização (Formato: aaaammddHHmmss) |
+| CaptureLocalDateTime | Datetime | 14 | Datetime da captura (Formato: aaaammddHHmmss) no horario local da adquirente|
+| **Poi***| Container | # | Igual ao descrito em [FinancialTransactions](#FinancialTransactions)|
+| **Cancellations*** | Container | # | Igual ao descrito em [FinancialTransactions](#FinancialTransactions), com algumas mudanças |
+| **Installments***| Container | # | Igual ao descrito em [FinancialTransactions](#FinancialTransactions), com algumas mudanças |
+
+<aside class="notice"> Informativo (Transaction)
+<ul>
+<li><b>* Elemento que aparecerá quando houver o desconto de um cancelamento &ltCancellationCharges&gt1&ltCancellationCharges&gt</b></li>
+</ul>
+</aside>
+
+ <aside class="warning"> Alerta!!!
+<ul>
+
+<li><b>É importante armazenar as informações como IssuerAuthorizationCode, CardNumber, BrandId e etc, durante o evento de captura. Pois quando a transação aparecer em FinancialTransactionsAccounts (liquidação), virá apenas com os NSU para que possa identificar qual transação está sendo paga/descontada.</b></li>
+
+</ul>
+</aside>
+
+### Cancellations
+
+Contém uma lista de **Cancellation**
+
+### Cancellation
+
+Nó filho de **Cancellations** que contém as informações sobre o desconto de um cancelamento
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| InstallmentNumber| Num | 2 | Identificador único da operação de cancelamento |
+| OperationKey | Alfa | 32 | Identificador da parcela que foi descontada|
+| CancellationDateTime | Datetime | 14 | Data hora do cancelamento (Formato: aaaammddHHmmss) |
+| ReturnedAmount | Float | 20 | Valor revertido e devolvido ao portador do cartão |
+| **Billing** | Container | # | Lista de cobranças relativa ao cancelamento |
+
+
+### Billing
+
+Cobrança relativa ao cancelamento.
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| ChargedAmount | Float | 20 | Valor de desconto do cancelamento (descontado do lojista)|
+| ChargeDate | Datetime | 8 | Data de cobrança (Formato: aaaammdd)|
+
+### Installments
+
+Contém uma lista de **Installment** (parcelas)
+
+### Installment
+
+Nó filho de **Installments** que contém as informações sobre as parcelas de uma transação.
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| InstallmentNumber | Num | 2 | Número da parcela |
+| GrossAmount | Float | 20 | Valor bruto da parcela |
+| NetAmount | Float | 20 | Valor liquido da parcela |
+| PaymentDate | Datetime | 8 | Data de pagamento da parcela. (Formato: aaaammdd)|
+| AdvanceRateAmount | Float | 20 | Valor cobrado pela antecipação de recebível* |
+| AdvancedReceivableOriginalPaymentDate* | Datetime | 8 | Data original de pagamento do recebível adiantado* |
+| SuspendedByChargeback** | Alfa | 4 | Marcador se o pagamento da parcela está suspensa por Chargeback\*\*\*\* |
+| Chargeback | Container | ###### | Contém chargebacks relativos a parcela** |
+| ChargebackRefund | Container | ###### | Contém estornos de chargeback relativos a parcela\*** |
+| PaymentId | Num | 9 | Referência do elemento de pagamento (Payments) no qual a liquidação dessa parcela foi incluida |
+| **Chargeback**^ | Container | # | Referência do elemento de pagamento (Payments) no qual a liquidação dessa parcela foi incluida |
+| **ChargebackRefund**^^ | Container | # | Referência do elemento de pagamento (Payments) no qual a liquidação dessa parcela foi incluida |
+
+<aside class="notice">  Informativo (Installment | FinancialTransactionsAccounts)
+
+<ul>
+
+<li><b>* Elementos que só aparecem quando houver antecipação</b></li>
+
+<li><b>** Elemento que só aparece quando houve Chargeback</b></li>
+
+<li><b>^ Elemento que só aparece quando houve Chargeback e Reapresentação de Chargeback</b></li>
+
+<li><b>^^ Aparece apenas nas parcelas posteriores à parcela que sofreu chargeback</b></li>
+
+</ul>
+
+</aside>
+
+
+## FinancialEventAccounts
+
+Descrição dos Containers e atributos dentro de **FinancialEventsAccounts**.
+
+* Contém uma lista de **Event**
+
+### Event
+
+Nó filho de FinancialEventsAccounts, contém as informações dos eventos financeiros pagos ou descontados no dia de referência do arquivo (ajustes financeiros, aluguel de pos, etc…)
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| EventId | Num | 10 | Código identificador do evento |
+| Description | Alfa | 60 | Descrição do evento |
+| [Type](#type) | Num | 2 | Tipo do evento (Poderá identificar se é uum crédito ou um débito através do sinal. Ex: -22 (Debito), 5 (Credito) |
+| PaymentDate | Date | 8 | Data em que o evento foi pago. (Formato: aaaammdd) |
+| Amount | Float | 20 | Valor do evento |
+
+## Payments
+
+Descrição dos Containers e atributos dentro de **Payments**.
+
+* Contém uma lista de **Payment**
+
+### Payment
+
+Nó filho de **Payments**, representa um pagamento efetuado para o lojista.
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| Id | Num | 9 | Identificador do pagamento |
+| TotalAmount | Float | 20 | Valor total depositado na conta do lojista |
+| TotalFinancialAccountsAmount* | Float | 24 | Valor total que o lojista tem disponível para receber no dia |
+| LastNegativeAmount** | Float | 24 | Valor negativo que o cliente tem pendente com a Stone |
+| FavoredBankAccount | Container | # | Informações bancarias da conta favorecida pelo pagamento |
+
+<aside class="notice"> Informativo (Payments)
+
+O nó **Payment** aparecerá apenas quando for feito um depósito na conta. Não aparecerá em situações em que os descontos forem maior que os recebíveis do dia.
+<ul>
+<li><b>* Quando o valor desse elemento for negativo, o valor total pago no dia ao lojista <em>TotalAmount</em> será zero.</b></li>
+
+<li><b>** O valor negativo pendente será descontado do valor total que o lojista tem para receber, caso esse total seja positivo <em>TotalFinancialAccountsAmount</em>.</b></li>
+
+</ul>
+</aside>
+
+### FavoredBankAccount
+
+Nó filho de **Payment**. Contém as informações bancárias da conta em que foi feito o depósito.
+
+| Elemento | Tipo | Tamanho | Descrição |
+| -------- | ---- | ------- | --------- |
+| BankCode | Num | 4 | Código do banco favorecido de acordo com o [Banco Central](http://www.bcb.gov.br/?RELAGPAB) |
+| BankBranch | Alfa | 10 | 	Código da agência do banco de acordo com o [Banco Central](http://www.bcb.gov.br/?RELAGPAB) |
+| BankAccountNumber | Num | 12 | Número da conta favorecida |
+
+## Trailer
+
+Descrição dos atributos dentro de **Trailer**
+
+| Elemento | Tipo | Tamanho | Descrição |
+| :-------- | ---- | ------- | --------- |
+| CapturedTransactionsQuantity | Num | 9 | Número de transações capturadas |
+| CanceledTransactionsQuantity | Num | 9 | Número de transações canceladas |
+| PaidInstallmentsQuantity | Num | 9 | Número de transações pagas |
+| ChargedCancellationsQuantity | Num | 9 | Número de cancelamentos descontados |
+| ChargebacksQuantity | Num | 9 | Número de chargebacks |
+| ChargebacksRefundQuantity | Num | 9 | Número de estornos de chargeback |
+| ChargedChargebacksQuantity | Num | 9 | Número de chargebacks descontados |
+| PaidChargebacksRefundQuantity | Num | 9 | Número de estornos de chargebacks pagos |
+| PaidEventsQuantity  | Num | 9 | Número de eventos financaeiros pagos |
+| ChargedEventsQuantity  | Num | 9 | Número de eventos financaeiros descontados |
+
+# Layout V2
+
+## O Fluxo
+
+Toda transação nova ou acontecimento de uma transação já existente será demonstrada no arquivo de diferentes maneiras. Abaixo demonstrarei os principais fluxos:
+
+<aside class="success"> Captura
+
+<ul>
+<li>Quando uma transação é realizada, um nó `Transaction` referente à ela aparecerá sob `FinancialTransactions` no arquivo de conciliação desse dia com o evento `Captures` com o valor 1 em `Event`, dentro do nó transaction se encontrará todas as parcelas dessa transação representadas pelos nós `Installment`.</li>
+</ul>
+
+</aside>
+
+### Exemplos de ciclo de vida da captura:
+
+`Captura (10/05) > Liquidação da Parcela (09/06)`
+
+> Captura
 
 ```xml
-<Document xmlns="urn:AcceptorAuthorisationRequestV02.1">
-    <AccptrAuthstnReq>
-        <!-- Cabeçalho da requisição -->
-        <Hdr>
-            <!-- Identifica o tipo de processo em que a mensagem se propõe. -->
-            <MsgFctn>AUTQ</MsgFctn>
-            <!-- Versão do protocolo utilizado na mensagem. -->
-            <PrtcolVrsn>2.0</PrtcolVrsn>
-        </Hdr>
-        <!-- Dados da requisição de autorização. -->
-        <AuthstnReq>
-            <!-- Ambiente da transação. -->
-            <Envt>
-                <!-- Dados do estabelecimento. -->
-                <Mrchnt>
-                    <!-- Identificação do estabelecimento. -->
-                    <Id>
-                        <!-- Identificação do estabelecimento comercial no adquirente.
-                             Também conhecido internamente como “SaleAffiliationKey”. -->
-                        <Id>BFDB58AB9A8A48828C2647E18B7F1114</Id>
-						<!-- O nome que aparecerá na fatura.
-						     - se a transação for mastercard, o limite é 22 caracteres;
-							 - se a transação for visa, o limite é 25 caracteres;
-							 - se for parcelado, a visa usa os 8 primeiros caracteres do
-							   nome do lojista pra passar a informação de parcelamento,
-							   sobrando 17 caracteres. -->
-						<ShrtNm>Nome da fatura</ShrtNm>
-                    </Id>
-                </Mrchnt>
-                <!-- Dados do ponto de interação -->
-                <POI>
-                    <!-- Identificação do ponto de interação -->
-                    <Id>
-                        <!-- Código de identificação do ponto de interação
-							 atribuído pelo estabelecimento. -->
-                        <Id>2FB4C89A</Id>
-                    </Id>
-                </POI>
-                <!-- Dados do cartão utilizado na transação. -->
-                <Card>
-                    <!-- Dados não criptografados do cartão utilizado na transação. -->
-                    <PlainCardData>
-                        <!-- Número do cartão. (Primary Account Number) -->
-                        <PAN>4066559930861909</PAN>
-                        <!-- Data de validade do cartão no formato “yyyy-MM”. -->
-                        <XpryDt>2017-10</XpryDt>
-                        <!-- Código de segurança do cartão -->
-                        <CardSctyCd>
-                            <!-- CVV estampado no verso do cartão -->
-                            <CSCVal>123</CSCVal>
-                        </CardSctyCd>
-                    </PlainCardData>
-                </Card>
-            </Envt>
-            <!-- Informações da transação a ser realizada. -->
-            <Cntxt>
-                <!-- Informações sobre o pagamento. -->
-                <PmtCntxt>
-                    <!-- Modo da entrada dos dados do cartão.
-						 PHYS = Ecommerce ou Digitada; -->
-                    <CardDataNtryMd>PHYS</CardDataNtryMd>
-                    <!-- Tipo do canal de comunicação utilizado na transação.
-						 ECOM = Ecommerce ou Digitada -->
-                    <TxChanl>ECOM</TxChanl>
-                </PmtCntxt>
-            </Cntxt>
-            <!-- Informações da transação. -->
-            <Tx>
-                <!-- Identificação da transação definida pelo sistema que se
-                     comunica com o Host Stone. -->
-                <InitrTxId>123123123</InitrTxId>
-                <!-- Indica se os dados da transação devem ser capturados (true)
-                     ou não (false) imediatamente. -->
-                <TxCaptr>false</TxCaptr>
-                <!-- Dados de identificação da transação atribuída pelo POI. -->
-                <TxId>
-                    <!-- Data local e hora da transação atribuídas pelo POI. -->
-                    <TxDtTm>2014-03-12T15:11:06</TxDtTm>
-                    <!-- Identificação da transação definida pelo ponto de interação (POI,
-                         estabelecimento, lojista, etc). O formato é livre contendo no
-                         máximo 32 caracteres. -->
-                    <TxRef>06064f516a50483da7f189243c95ccca</TxRef>
-                </TxId>
-                <!-- Detalhes da transação. -->
-                <TxDtls>
-                    <!-- Moeda utilizada na transação em conformidade com a ISO 4217.-->
-                    <Ccy>986</Ccy>
-                    <!-- Valor total da transação em centavos. -->
-                    <TtlAmt>100</TtlAmt>
-                    <!-- Modalidade do cartão utilizado na transação. -->
-                    <AcctTp>CRDT</AcctTp>
-                    <!-- Os dados relativos à(s) parcela(s) ou a uma transação recorrente. -->
-                    <RcrngTx>
-                        <!-- Tipo de parcelamento. -->
-                        <InstlmtTp>NONE</InstlmtTp>
-                        <!-- Número do total de parcelas. -->
-                        <TtlNbOfPmts>0</TtlNbOfPmts>
-                    </RcrngTx>
-                </TxDtls>
-            </Tx>
-        </AuthstnReq>
-    </AccptrAuthstnReq>
-</Document>
+<FinancialTransactions>
+  ...
+   <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>1</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <International>True</International>
+            <AccountType>2</AccountType>
+            <InstallmentType>1</InstallmentType>
+            <NumberOfInstallments>1</NumberOfInstallments>
+            <AuthorizedAmount>694.000000</AuthorizedAmount>
+            <CapturedAmount>694.000000</CapturedAmount>
+            <AuthorizationCurrencyCode>986</AuthorizationCurrencyCode>
+            <IssuerAuthorizationCode>054973</IssuerAuthorizationCode>
+            <BrandId>1</BrandId>
+            <CardNumber>411111******1111</CardNumber>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PrevisionPaymentDate>20160609</PrevisionPaymentDate>
+                </Installment>
+            </Installments>
+        </Transaction>
+  ...
+</FinancialTransactions>
+``` 
+
+> Liquidação Parcela 1
+```xml
+<FinancialTransactionsAccounts>
+  ...
+    <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>1</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PaymentDate>20160609</PaymentDate>
+                    <PaymentId>1234567</PaymentId>
+                </Installment>
+            </Installments>
+       </Transaction>
+    ...
+<FinancialTransactionsAccounts>
+ ...
+<Payments>
+        <Payment>
+            <Id>1234567</Id>
+            <TotalAmount>14185.81</TotalAmount>
+            <TotalFinancialAccountsAmount>14185.81</TotalFinancialAccountsAmount>
+            <LastNegativeAmount>0.00</LastNegativeAmount>
+            <FavoredBankAccount>
+                <BankCode>XX</BankCode>
+                <BankBranch>XXXX</BankBranch>
+                <BankAccountNumber>XXXXXXXXX</BankAccountNumber>
+            </FavoredBankAccount>
+        </Payment>
+</Payments>
+``` 
+
+<aside class="success"> Cancelamento
+
+<ul>
+
+<li>Quando uma transação é cancelada no dia de referência, um nó `Transaction` referente a ela aparecerá sob `FinancialTransactions` no arquivo de conciliação desse dia com o evento `Cancellations` com o valor 1 em `Event`, dentro do nó `Transaction` aparecerá um nó chamado `Cancellations` que descreve cada cancelamento (vários se houver cancelamentos parciais, ou apenas um se for cancelamento total)</li>
+
+</ul>
+
+</aside>
+
+### Exemplos de ciclos de vida da cancelamento:
+
+`Captura (10/05) > Liquidação da Parcela (09/06) > Cancelamento (10/06) > Desconto do Cancelamento (12/06)`
+
+> Captura
+```xml
+<FinancialTransactions>
+  ...
+   <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>1</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <International>True</International>
+            <AccountType>2</AccountType>
+            <InstallmentType>1</InstallmentType>
+            <NumberOfInstallments>1</NumberOfInstallments>
+            <AuthorizedAmount>694.000000</AuthorizedAmount>
+            <CapturedAmount>694.000000</CapturedAmount>
+            <AuthorizationCurrencyCode>986</AuthorizationCurrencyCode>
+            <IssuerAuthorizationCode>054973</IssuerAuthorizationCode>
+            <BrandId>1</BrandId>
+            <CardNumber>411111******1111</CardNumber>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PrevisionPaymentDate>20160609</PrevisionPaymentDate>
+                </Installment>
+            </Installments>
+        </Transaction>
+  ...
+</FinancialTransactions>
 ```
 
-|Campo|Ocorrência|Tipo|Descrição|Obrigatório|
-|-----|----------|----|---------|-----------|
-|Header`<Hdr>`|[1..1]|Container|Cabeçalho da mensagem.| Sim |
-|MessageFunction`<MsgFctn>`|[1..1]|CodeSet|Identifica o tipo de processo em que a mensagem se propõe. Valor Fixo: `AUTQ` = `AuthorisationRequest`.| Sim |
-|ProtocolVersion`<PrtcolVrsn>`|[1..1]|Text|Versão do protocolo utilizado na mensagem.| Sim |
-|AuthorisationRequest`<AuthstnReq>`|[1..1]|Container|Dados da requisição de autorização.| Sim |
-|Environment`<Envt>`|[1..1]|Container|Ambiente da transação.| Sim |
-|Merchant `<Mrchnt>`|[1..1]|Container|Dados do estabelecimento.| Sim |
-|Identification`<ID>`|[1..1]|Container|Identificação do estabelecimento comercial.| Sim |
-|Identification`<ID>`|[1..1]|Text|Identificação do estabelecimento comercial no adquirente. Também conhecido internamente como “SaleAffiliationKey”.| Sim |
-|ShrtNm|[0..1]|Text|O nome que aparecerá na fatura.  Se a transação for mastercard, o limite é 22 caracteres; Se a transação for visa, o limite é 25 caracteres; Se for parcelado, a visa usa os 8 primeiros caracteres do nome do lojista pra passar a informação de parcelamento, sobrando 17 caracteres. | Não |
-|Poi`<POI>`|[1..1]|Container|Dados do ponto de interação| Sim |
-|Identification`<ID>`|[1..1]|Container|Identificação do ponto de interação| Sim |
-|Identification`<ID>`|[1..1]|Text|Código de identificação do ponto de interação atribuído pelo estabelecimento.| Sim |
-|Card`<Card>`|[1..1]|Container|Dados do cartão utilizado na transação.| Sim |
-|PlainCardData`<PlainCardData>`|[0..1]|Container|Dados não criptografados do cartão utilizado na transação.| Não |
-|PAN`<PAN>`|[1..1]|Text|Número do cartão. (Primary Account Number)| Sim |
-|ExpiryDate`<XpryDt>`|[1..1]|Text|Data de validade do cartão no formato “yyyy-MM”.| Sim |
-|CardSctyCd`<CardSctyCd>`|[1..1]|Container|Código de segurança do cartão| Sim |
-|CSCVal`<CSCVal>`|[1..1]|Text|CVV estampado no verso do cartão| Sim |
-|Context`<Cntxt>`|[1..1]|Container|Informações da transação a ser realizada.| Sim |
-|PaymentContext`<PmtCntxt>`|[1..1]|Container|Informações sobre o pagamento.| Sim |
-|CardDataEntryMode`<CardDataNtryMd>`|[1..1]|CodeSet|Modo da entrada dos dados do cartão: `PHYS` = Ecommerce ou Digitada;| Sim |
-|TransactionChannel`<TxChanl>`|[0..1]|CodeSet|Tipo do canal de comunicação utilizado na transação. Obs.: Preencher esta tag apenas se `CardDataNtryMd` = `PHYS` ou `ECOM` = `Ecommerce ou Digitada`| Sim |
-|Transaction`<Tx>`|[1..1]|Container|Informações da transação.| Sim |
-|InitiatorTransactionIdentification`<InitrTxId>`|[0..1]|Text|Identificação da transação definida pelo sistema que se comunica com o Host Stone.| Não |
-|TransactionCapture`<TxCaptr>`|[1..1]|Boolean|Indica se os dados da transação devem ser capturados - `true` - ou não `false` - imediatamente.| Sim |
-|TransactionIdentification`<TxId>`|[1..1]|Container|Dados de identificação da transação atribuída pelo POI (Ponto de interação).| Sim |
-|TransactionDateTime`<TxDtTm>`|[1..1]|DateTime|Data local e hora da transação atribuídas pelo POI (ponto de interação).| Sim |
-|TransactionReference`<TxRef>`|[1..1]|Text|Identificação da transação definida pelo ponto de interação (POI, estabelecimento, lojista, etc). O formato é livre contendo no máximo 32 caracteres.| Sim |
-|TransactionDetails`<TxDtls>`|[1..1]|Container|Detalhes da transação.| Sim |
-|Currency`<Ccy>`|[1..1]|CodeSet|Moeda utilizada na transação em conformidade com a [ISO 4217](http://pt.wikipedia.org/wiki/ISO_4217) - `986` = Real Brasileiro.| Sim |
-|TotalAmount`<TtlAmt>`|[1..1]|Amount|Valor total da transação em centavos.| Sim |
-|AccountType`<AcctTp>`|[0..1]|CodeSet|Modalidade do cartão utilizado na transação. `CRDT` = Crédito.| Não |
-|RecurringTransaction`<RcrngTx>`|[0..1]|Container|Os dados relativos à(s) parcela(s) ou a uma transação recorrente.| Não |
-|InstalmentType`<InstlmtTp>`|[1..1]|CodeSet|Tipo de parcelamento. `NONE` = Nenhum e `MCHT` = Lojista| Sim |
-|TotalNumberOfPayments`<TtlNbOfPmts>`|[1..1]|Quantity|Número do total de parcelas.| Sim |
+> Liquidação Parcela 1
+```xml
+<FinancialTransactionsAccounts>
+  ...
+    <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>1</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PaymentDate>20160609</PaymentDate>
+                    <PaymentId>1234567</PaymentId>
+                </Installment>
+            </Installments>
+       </Transaction>
+    ...
+<FinancialTransactionsAccounts>
+ ...
+<Payments>
+        <Payment>
+            <Id>1234567</Id>
+            <TotalAmount>14185.81</TotalAmount>
+            <TotalFinancialAccountsAmount>14185.81</TotalFinancialAccountsAmount>
+            <LastNegativeAmount>0.00</LastNegativeAmount>
+            <FavoredBankAccount>
+                <BankCode>XX</BankCode>
+                <BankBranch>XXXX</BankBranch>
+                <BankAccountNumber>XXXXXXXXX</BankAccountNumber>
+            </FavoredBankAccount>
+        </Payment>
+</Payments>
+```
 
-#
-### Legendas
+> Cancelamento
+```xml
+<FinancialTransactions>
+  ...
+    <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>1</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Cancellations>
+                <Cancellation>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <OperationKey>2276000071307928</OperationKey>
+                    <CancellationDateTime>20160610040236</CancellationDateTime>
+                    <ReturnedAmount>694.000000</ReturnedAmount>
+                    <Billing>
+                        <ChargedAmount>678.454400</ChargedAmount>
+                        <PrevisionChargeDate>20160612</PrevisionChargeDate>
+                    </Billing>
+                </Cancellation>
+           </Cancellations>
+       </Transaction>
+    ...
+<FinancialTransactions>
+```
 
-Ocorrência<br>
-[0..0] -> Dado não obrigatório no envio da requisição e na resposta<br>
-[0..1] -> Dado não obrigatório no envio da requisição, porém obrigatório na resposta<br>
-[1..0] -> Dado obrigatório no envio da requisição, porém não obrigatório na resposta<br>
-[1..1] -> Dado obrigatório no envio da requisição e na resposta<br>
+> Liquidação Cancelamento
+```xml
+<FinancialTransactionsAccounts>
+  ...
+    <Transaction>
+            <Events>
+                <CancellationCharges>1</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Cancellations>
+                <Cancellation>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <OperationKey>2276000071307928</OperationKey>
+                    <CancellationDateTime>20160610040236</CancellationDateTime>
+                    <ReturnedAmount>694.000000</ReturnedAmount>
+                    <Billing>
+                        <ChargedAmount>678.454400</ChargedAmount>
+                        <ChargeDate>20160612</ChargeDate>
+                    </Billing>
+                </Cancellation>
+            </Cancellations>
+       </Transaction>
+    ...
+<FinancialTransactionsAccounts>
+```
 
-#
+`Captura (10/05) > Liquidação da Parcela (09/06) > Cancelamento (10/06) > Desconto do Cancelamento (12/06)`
 
-### Resposta de autorização
-A mensagem `AcceptorAuthorisationResponse` é enviada pelo adquirente, para retornar o resultado da validação realizada pelo emissor sobre a operação de pagamento.
+> Captura
+```xml
+<FinancialTransactions>
+  ...
+   <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>1</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <International>True</International>
+            <AccountType>2</AccountType>
+            <InstallmentType>1</InstallmentType>
+            <NumberOfInstallments>3</NumberOfInstallments>
+            <AuthorizedAmount>1099.000000</AuthorizedAmount>
+            <CapturedAmount>694.000000</CapturedAmount>
+            <AuthorizationCurrencyCode>986</AuthorizationCurrencyCode>
+            <IssuerAuthorizationCode>054973</IssuerAuthorizationCode>
+            <BrandId>1</BrandId>
+            <CardNumber>411111******1111</CardNumber>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>366.340000</GrossAmount>
+                    <NetAmount>357.657742</NetAmount>
+                    <PrevisionPaymentDate>20160609</PrevisionPaymentDate>
+                </Installment>
+                <Installment>
+                    <InstallmentNumber>2</InstallmentNumber>
+                    <GrossAmount>366.330000</GrossAmount>
+                    <NetAmount>357.647979</NetAmount>
+                    <PrevisionPaymentDate>20160709</PrevisionPaymentDate>
+                </Installment>
+                <Installment>
+                    <InstallmentNumber>3</InstallmentNumber>
+                    <GrossAmount>366.330000</GrossAmount>
+                    <NetAmount>357.647979</NetAmount>
+                    <PrevisionPaymentDate>20160809</PrevisionPaymentDate>
+                </Installment>
+            </Installments>
+        </Transaction>
+  ...
+</FinancialTransactions>
+```
+
+> Liquidação Parcela 1
+```xml
+<FinancialTransactionsAccounts>
+  ...
+    <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>1</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>366.340000</GrossAmount>
+                    <NetAmount>357.657742</NetAmount>
+                    <PaymentDate>20160609</PaymentDate>
+                    <PaymentId>1234567</PaymentId>
+                </Installment>
+            </Installments>
+       </Transaction>
+    ...
+<FinancialTransactionsAccounts>
+ ...
+<Payments>
+        <Payment>
+            <Id>1234567</Id>
+            <TotalAmount>14185.81</TotalAmount>
+            <TotalFinancialAccountsAmount>14185.81</TotalFinancialAccountsAmount>
+            <LastNegativeAmount>0.00</LastNegativeAmount>
+            <FavoredBankAccount>
+                <BankCode>XX</BankCode>
+                <BankBranch>XXXX</BankBranch>
+                <BankAccountNumber>XXXXXXXXX</BankAccountNumber>
+            </FavoredBankAccount>
+        </Payment>
+</Payments>
+```
+
+> Cancelamento
+```xml
+<FinancialTransactions>
+  ...
+    <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>1</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Cancellations>
+                <Cancellation>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <OperationKey>2276000071307928</OperationKey>
+                    <CancellationDateTime>20160610040236</CancellationDateTime>
+                    <ReturnedAmount>366.340000</ReturnedAmount>
+                    <Billing>
+                        <ChargedAmount>357.657742</ChargedAmount>
+                        <PrevisionChargeDate>20160612</PrevisionChargeDate>
+                    </Billing>
+                </Cancellation>
+                <Cancellation>
+                    <InstallmentNumber>2</InstallmentNumber>
+                    <OperationKey>2276000071307928</OperationKey>
+                    <CancellationDateTime>20160610040236</CancellationDateTime>
+                    <ReturnedAmount>366.330000</ReturnedAmount>
+                    <Billing>
+                        <ChargedAmount>357.647979</ChargedAmount>
+                        <PrevisionChargeDate>20160612</PrevisionChargeDate>
+                    </Billing>
+                </Cancellation>
+                <Cancellation>
+                    <InstallmentNumber>3</InstallmentNumber>
+                    <OperationKey>2276000071307928</OperationKey>
+                    <CancellationDateTime>20160610040236</CancellationDateTime>
+                    <ReturnedAmount>366.330000</ReturnedAmount>
+                    <Billing>
+                        <ChargedAmount>357.647979</ChargedAmount>
+                        <PrevisionChargeDate>20160612</PrevisionChargeDate>
+                    </Billing>
+                </Cancellation>
+           </Cancellations>
+       </Transaction>
+    ...
+<FinancialTransactions>
+```
+
+> Desconto do Cancelamento
+```xml
+<FinancialTransactionsAccounts>
+  ...
+    <Transaction>
+            <Events>
+                <CancellationCharges>3</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>2</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <!--Aceleração das parcelas-->
+                <Installment>
+                    <InstallmentNumber>2</InstallmentNumber>
+                    <GrossAmount>366.330000</GrossAmount>
+                    <NetAmount>357.647979</NetAmount>
+                    <PaymentDate>20160612</PaymentDate>
+                    <PaymentId>1234567</PaymentId>
+                </Installment>
+                <Installment>
+                    <InstallmentNumber>3</InstallmentNumber>
+                    <GrossAmount>366.330000</GrossAmount>
+                    <NetAmount>357.647979</NetAmount>
+                    <PaymentDate>20160612</PaymentDate>
+                    <PaymentId>1234567</PaymentId>
+                </Installment>
+            </Installments>
+            <Cancellations>
+                <!--Cancelamento das parcelas aceleradas-->
+                <Cancellation>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <OperationKey>2276000071307928</OperationKey>
+                    <CancellationDateTime>20160610040236</CancellationDateTime>
+                    <ReturnedAmount>366.340000</ReturnedAmount>
+                    <Billing>
+                        <ChargedAmount>357.657742</ChargedAmount>
+                        <ChargeDate>20160612</ChargeDate>
+                    </Billing>
+                </Cancellation>
+                <Cancellation>
+                    <InstallmentNumber>2</InstallmentNumber>
+                    <OperationKey>2276000071307928</OperationKey>
+                    <CancellationDateTime>20160610040236</CancellationDateTime>
+                    <ReturnedAmount>366.330000</ReturnedAmount>
+                    <Billing>
+                        <ChargedAmount>357.647979</ChargedAmount>
+                        <ChargeDate>20160612</ChargeDate>
+                    </Billing>
+                </Cancellation>
+                <Cancellation>
+                    <InstallmentNumber>3</InstallmentNumber>
+                    <OperationKey>2276000071307928</OperationKey>
+                    <CancellationDateTime>20160610040236</CancellationDateTime>
+                    <ReturnedAmount>366.330000</ReturnedAmount>
+                    <Billing>
+                        <ChargedAmount>357.647979</ChargedAmount>
+                        <ChargeDate>20160612</ChargeDate>
+                    </Billing>
+                </Cancellation>
+            </Cancellations>
+       </Transaction>
+    ...
+<FinancialTransactionsAccounts>
+```
+
+<aside class="notice"> Aceleração de Parcelas
+
+<ul>
+
+<li>Acima podemos ver o exemplo de um fluxo de **Aceleração de parcelas**. Ou seja, se eu tenho uma transação de 2 parcelas, e após a liquidação da primeira parcela é enviado um cancelamento, no dia do desconto do cancelamento, é feita a aceleração da liquidação das parcelas restantes para liberar o saldo do cliente. Perceba que a PaymentDate no dia 12/06 foi antecipada.</li>
+
+</ul>
+
+</aside>
+
+`Captura (10/05) > Cancelamento (10/05)`
+
+> Captura + Cancelamento
+```xml
+<FinancialTransactions>
+  ...
+   <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>1</Cancellations>
+                <Captures>1</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <International>True</International>
+            <AccountType>2</AccountType>
+            <InstallmentType>1</InstallmentType>
+            <NumberOfInstallments>3</NumberOfInstallments>
+            <AuthorizedAmount>1099.000000</AuthorizedAmount>
+            <CapturedAmount>694.000000</CapturedAmount>
+            <AuthorizationCurrencyCode>986</AuthorizationCurrencyCode>
+            <IssuerAuthorizationCode>054973</IssuerAuthorizationCode>
+            <BrandId>1</BrandId>
+            <CardNumber>411111******1111</CardNumber>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Cancellations>
+                <Cancellation>
+                    <OperationKey>2316000073093085</OperationKey>
+                    <CancellationDateTime>20160510104014</CancellationDateTime>
+                    <ReturnedAmount>694.000000</ReturnedAmount>
+                </Cancellation>
+            </Cancellations>
+        </Transaction>
+  ...
+</FinancialTransactions>
+```
+
+<aside class="notice"> Captura + Cancelamento
+
+<ul>
+
+<li>Repare que quando o cancelamento é feito no mesmo dia da captura, o nó `Billing` não aparece, ou seja, não é agendado uma data de desconto do cancelamento.</li>
+
+</ul>
+
+</aside>
+
+<aside class="success"> Chargeback
+
+<ul>
+
+<li>Quando uma transação sofre chargeback ela aparece tanto em `FinancialTransactions` no dia em que sofreu o chargeback, e em `FinancialTransactionAccounts` no dia em que foi descontada.</li>
+
+</ul>
+
+</aside>
+
+### Exemplos de ciclos de vida do Chargeback:
+
+`Captura (10/05) > Liquidação da Parcela (09/06) > Chargeback + Desconto do Chargeback (10/06)`
+
+> Captura
+```xml
+<FinancialTransactions>
+  ...
+   <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>1</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <International>True</International>
+            <AccountType>2</AccountType>
+            <InstallmentType>1</InstallmentType>
+            <NumberOfInstallments>1</NumberOfInstallments>
+            <AuthorizedAmount>694.000000</AuthorizedAmount>
+            <CapturedAmount>694.000000</CapturedAmount>
+            <AuthorizationCurrencyCode>986</AuthorizationCurrencyCode>
+            <IssuerAuthorizationCode>054973</IssuerAuthorizationCode>
+            <BrandId>1</BrandId>
+            <CardNumber>411111******1111</CardNumber>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PrevisionPaymentDate>20160609</PrevisionPaymentDate>
+                </Installment>
+            </Installments>
+        </Transaction>
+  ...
+</FinancialTransactions>
+```
+
+> Liquidação da Parcela
+```xml
+<FinancialTransactionsAccounts>
+  ...
+    <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>1</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PaymentDate>20160609</PaymentDate>
+                    <PaymentId>1234567</PaymentId>
+                </Installment>
+            </Installments>
+       </Transaction>
+    ...
+<FinancialTransactionsAccounts>
+ ...
+<Payments>
+        <Payment>
+            <Id>1234567</Id>
+            <TotalAmount>14185.81</TotalAmount>
+            <TotalFinancialAccountsAmount>14185.81</TotalFinancialAccountsAmount>
+            <LastNegativeAmount>0.00</LastNegativeAmount>
+            <FavoredBankAccount>
+                <BankCode>XX</BankCode>
+                <BankBranch>XXXX</BankBranch>
+                <BankAccountNumber>XXXXXXXXX</BankAccountNumber>
+            </FavoredBankAccount>
+        </Payment>
+</Payments>
+```
+
+> Chargeback + Desconto Chargeback
+```xml
+<FinancialTransactions>
+  ...
+    <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>1</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PrevisionPaymentDate>20160609</PrevisionPaymentDate>
+                    <Chargeback>
+                        <Id>187384389</Id>
+                        <Amount>678.454400</Amount>
+                        <Date>20160610</Date>
+                        <ChargeDate>20160610</ChargeDate>
+                        <ReasonCode>83</ReasonCode>
+                    </Chargeback>
+                </Installment>
+            </Installments>
+       </Transaction>
+    ...
+<FinancialTransactions>
+```
+
+<aside class="notice">  Chargeback após liquidação da parcela
+<ul>
+
+<li>Caso o chargeback ocorra após a liquidação da parcela, ele reaparecerá dentro de Installment e sua liquidação será imediata, sem a necessidade de aparecer novamente dentro de `FinancialTransactionsAccounts`.</li>
+
+</ul>
+
+</aside>
+
+`Captura (10/05) > Chargeback (20/05) > Liquidação Parcela + Desconto do Chargeback (09/06)`
+
+> Captura
+```xml
+<FinancialTransactions>
+  ...
+   <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>1</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <International>True</International>
+            <AccountType>2</AccountType>
+            <InstallmentType>1</InstallmentType>
+            <NumberOfInstallments>1</NumberOfInstallments>
+            <AuthorizedAmount>694.000000</AuthorizedAmount>
+            <CapturedAmount>694.000000</CapturedAmount>
+            <AuthorizationCurrencyCode>986</AuthorizationCurrencyCode>
+            <IssuerAuthorizationCode>054973</IssuerAuthorizationCode>
+            <BrandId>1</BrandId>
+            <CardNumber>411111******1111</CardNumber>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PrevisionPaymentDate>20160609</PrevisionPaymentDate>
+                </Installment>
+            </Installments>
+        </Transaction>
+  ...
+</FinancialTransactions>
+```
+> Chargeback
+```xml
+<FinancialTransactions>
+  ...
+   <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>1</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PrevisionPaymentDate>20160609</PrevisionPaymentDate>
+                    <Chargeback>
+                        <Id>149222320</Id>
+                        <Amount>678.454400</Amount>
+                        <Date>20160520</Date>
+                        <ChargeDate>20160609</ChargeDate>
+                        <ReasonCode>83</ReasonCode>
+                    </Chargeback>
+                </Installment>
+            </Installments>
+        </Transaction>
+  ...
+</FinancialTransactions>
+```
+
+> Liquidação Parcela + Desconto Chargeback
+```xml
+<FinancialTransactionsAccounts>
+  ...
+    <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>1</Chargebacks>
+                <Payments>1</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PaymentDate>20160609</PaymentDate>
+                    <Chargeback>
+                        <Id>149222320</Id>
+                        <Amount>678.454400</Amount>
+                        <Date>20160520</Date>
+                        <ChargeDate>20160609</ChargeDate>
+                        <ReasonCode>83</ReasonCode>
+                    </Chargeback>
+                    <PaymentId>1234567</PaymentId>
+                </Installment>
+            </Installments>
+       </Transaction>
+    ...
+<FinancialTransactionsAccounts>
+```
+
+<aside class="notice">  Chargeback antes da liquidação da parcela
+<ul>
+
+<li>Caso o Chargeback ocorra antes da liquidação da parcela, o desconto virá no dia do pagamento da parcela, como no exemplo acima. Como o pagamento é igual ao desconto, os dois se anulam.</li>
+
+</ul>
+
+</aside> 
+
+`Captura (10/05) > Chargeback (20/05) > Liquidação Parcela + Desconto do Chargeback (09/06)`
+
+> Captura
+```xml
+<FinancialTransactions>
+  ...
+   <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>1</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <International>True</International>
+            <AccountType>2</AccountType>
+            <InstallmentType>1</InstallmentType>
+            <NumberOfInstallments>3</NumberOfInstallments>
+            <AuthorizedAmount>1099.000000</AuthorizedAmount>
+            <CapturedAmount>694.000000</CapturedAmount>
+            <AuthorizationCurrencyCode>986</AuthorizationCurrencyCode>
+            <IssuerAuthorizationCode>054973</IssuerAuthorizationCode>
+            <BrandId>1</BrandId>
+            <CardNumber>411111******1111</CardNumber>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>366.340000</GrossAmount>
+                    <NetAmount>357.657742</NetAmount>
+                    <PrevisionPaymentDate>20160609</PrevisionPaymentDate>
+                </Installment>
+                <Installment>
+                    <InstallmentNumber>2</InstallmentNumber>
+                    <GrossAmount>366.330000</GrossAmount>
+                    <NetAmount>357.647979</NetAmount>
+                    <PrevisionPaymentDate>20160709</PrevisionPaymentDate>
+                </Installment>
+                <Installment>
+                    <InstallmentNumber>3</InstallmentNumber>
+                    <GrossAmount>366.330000</GrossAmount>
+                    <NetAmount>357.647979</NetAmount>
+                    <PrevisionPaymentDate>20160809</PrevisionPaymentDate>
+                </Installment>
+            </Installments>
+        </Transaction>
+  ...
+</FinancialTransactions>
+```
+> Chargeback
+```xml
+<FinancialTransactions>
+  ...
+   <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>1</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>366.340000</GrossAmount>
+                    <NetAmount>357.657742</NetAmount>
+                    <PrevisionPaymentDate>20160609</PrevisionPaymentDate>
+                    <Chargeback>
+                        <Id>149222320</Id>
+                        <Amount>357.657742</Amount>
+                        <Date>20160520</Date>
+                        <ChargeDate>20160609</ChargeDate>
+                        <ReasonCode>83</ReasonCode>
+                    </Chargeback>
+                </Installment>
+                <Installment>
+                    <InstallmentNumber>2</InstallmentNumber>
+                    <GrossAmount>366.330000</GrossAmount>
+                    <NetAmount>357.647979</NetAmount>
+                    <SuspendedByChargeback>True</SuspendedByChargeback>
+                </Installment>
+                <Installment>
+                    <InstallmentNumber>3</InstallmentNumber>
+                    <GrossAmount>366.330000</GrossAmount>
+                    <NetAmount>357.647979</NetAmount>
+                    <SuspendedByChargeback>True</SuspendedByChargeback>
+                </Installment>
+            </Installments>
+        </Transaction>
+  ...
+</FinancialTransactions>
+```
+> Liquidação Parcela + Desconto do Chargeback
+```xml
+<FinancialTransactionsAccounts>
+  ...
+    <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>1</Chargebacks>
+                <Payments>1</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>366.340000</GrossAmount>
+                    <NetAmount>357.657742</NetAmount>
+                    <PaymentDate>20160609</PaymentDate>
+                    <Chargeback>
+                        <Id>149222320</Id>
+                        <Amount>357.657742</Amount>
+                        <Date>20160520</Date>
+                        <ChargeDate>20160609</ChargeDate>
+                        <ReasonCode>83</ReasonCode>
+                    </Chargeback>
+                </Installment>
+            </Installments>
+       </Transaction>
+    ...
+<FinancialTransactionsAccounts>
+```
+
+<aside class="notice">  Parcelas suspensas por Chargeback
+
+<ul>
+
+<li>Em transações parceladas, caso o chargeback ocorra após o pagamento ou confirmação de uma parcela, as demais serão suspensas e em caso de reapresentação, reagendadas.</li>
+
+</ul>
+
+</aside>
+
+
+<aside class="success">  ChargebackRefund
+
+<ul>
+
+<li>Se uma parcela é reapresentada após chargeback ela aparecerá em `FinancialTransaction` no dia em que foi realizado a reapresentação e em `FinancialTransactionsAccounts` no dia que for pago ao lojista a reapresentação.</li>
+
+</ul>
+
+</aside>
+
+### Exemplos de ciclos de vida do ChargebackRefund:
+
+`Captura (10/05) > Chargeback (20/05) > Liquidação Parcela + Desconto do Chargeback (09/06) > ChargebackRefund (10/06) > Liquidação ChargebackRefund (11/06)`
+
+> Captura
+```xml
+<FinancialTransactions>
+  ...
+   <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>1</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <International>True</International>
+            <AccountType>2</AccountType>
+            <InstallmentType>1</InstallmentType>
+            <NumberOfInstallments>1</NumberOfInstallments>
+            <AuthorizedAmount>694.000000</AuthorizedAmount>
+            <CapturedAmount>694.000000</CapturedAmount>
+            <AuthorizationCurrencyCode>986</AuthorizationCurrencyCode>
+            <IssuerAuthorizationCode>054973</IssuerAuthorizationCode>
+            <BrandId>1</BrandId>
+            <CardNumber>411111******1111</CardNumber>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PrevisionPaymentDate>20160609</PrevisionPaymentDate>
+                </Installment>
+            </Installments>
+        </Transaction>
+  ...
+</FinancialTransactions>
+```
+> Chargeback
+```xml
+<FinancialTransactions>
+  ...
+   <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>1</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PrevisionPaymentDate>20160609</PrevisionPaymentDate>
+                    <Chargeback>
+                        <Id>149222320</Id>
+                        <Amount>678.454400</Amount>
+                        <Date>20160520</Date>
+                        <ChargeDate>20160609</ChargeDate>
+                        <ReasonCode>83</ReasonCode>
+                    </Chargeback>
+                </Installment>
+            </Installments>
+        </Transaction>
+  ...
+</FinancialTransactions>
+```
+
+> Liquidação Parcela + Desconto Chargeback
+```xml
+<FinancialTransactionsAccounts>
+  ...
+    <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>1</Chargebacks>
+                <Payments>1</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PaymentDate>20160609</PaymentDate>
+                    <Chargeback>
+                        <Id>149222320</Id>
+                        <Amount>678.454400</Amount>
+                        <Date>20160520</Date>
+                        <ChargeDate>20160609</ChargeDate>
+                        <ReasonCode>83</ReasonCode>
+                    </Chargeback>
+                    <PaymentId>1234567</PaymentId>
+                </Installment>
+            </Installments>
+       </Transaction>
+    ...
+<FinancialTransactionsAccounts>
+```
+
+> ChargebackRefund
+```xml
+<FinancialTransactions>
+  ...
+   <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>1</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PrevisionPaymentDate>20160609</PrevisionPaymentDate>
+                    <ChargebackRefund>
+                        <Id>149222320</Id>
+                        <Amount>678.454400</Amount>
+                        <Date>20160610</Date>
+                        <PaymentDate>20160611</PaymentDate>
+                        <ReasonCode>83</ReasonCode>
+                    </ChargebackRefund>
+                </Installment>
+            </Installments>
+        </Transaction>
+  ...
+</FinancialTransactions>
+```
+
+> Liquidação ChargebackRefund
+```xml
+<FinancialTransactionsAccounts>
+  ...
+   <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>1</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>99960072739732</AcquirerTransactionKey>
+            <InitiatorTransactionKey>123456789</InitiatorTransactionKey>
+            <AuthorizationDateTime>20160509154748</AuthorizationDateTime>
+            <CaptureLocalDateTime>20160510082639</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>694.000000</GrossAmount>
+                    <NetAmount>678.454400</NetAmount>
+                    <PrevisionPaymentDate>20160609</PrevisionPaymentDate>
+                    <ChargebackRefund>
+                        <Id>149222320</Id>
+                        <Amount>678.454400</Amount>
+                        <Date>20160610</Date>
+                        <PaymentDate>20160611</PaymentDate>
+                        <ReasonCode>83</ReasonCode>
+                    </ChargebackRefund>
+                </Installment>
+            </Installments>
+        </Transaction>
+  ...
+</FinancialTransactionsAccounts>
+```
+
+<aside class="warning"> Atenção 
+
+<ul>
+
+<li>Se com uma mesma transação ocorrer mais de um evento no mesmo dia, apenas um nó `Transaction` é criado para essa transação e as diversas modificações estarão descritas no nó `Events` (Ex: Uma transação capturada e cancelada no mesmo dia aparecerá com os nós `Captures` e `Cancellations` com o valor diferente de zero)</li>
+
+</ul>
+
+</aside>
+
+<aside class="success"> Event
+
+<ul>
+
+<li>Além das transações do cliente a conciliação contempla eventos financeiros, como aluguéis de POS, ajustes financeiros e transferência interna.</li>
+
+</ul>
+
+</aside>
+
+Quando ocorre um lançamento de um evento financeiro para o cliente um nó `event` é criado em `FinancialEvents`, no dia em que esse evento for pago o mesmo nó aparecerá sob `FinancialEventsAccounts`.
+
+### Exemplos de ciclos de vida do ChargebackRefund:
+
+`Evento (10/05) > Liquidação Evento (20/05)`
+
+> Event
+```xml
+<FinancialEvents>
+  ...
+  <Event>
+        <EventId>53162534</EventId>
+        <Description>PosRent</Description>
+        <Type>22</Type>
+        <PrevisionPaymentDate>20150511</PrevisionPaymentDate>
+        <Amount>-99.000000</Amount>
+  </Event>
+  ...
+</FinancialEvents>
+
+```
+> Liquidação Evento
+```xml
+<FinancialEventsAccounts>
+  ...
+  <Event>
+        <EventId>53162534</EventId>
+        <Description>PosRent</Description>
+        <Type>22</Type>
+        <PaymentDate>20150511</PaymentDate>
+        <Amount>-99.000000</Amount>
+  </Event>
+  ...
+</FinancialEventsAccounts>
+```
+## Exemplo de Layout v2
+
+### Exemplo de Arquivo Completo 
 
 ```xml
-<Document xmlns="urn:AcceptorAuthorisationResponseV02.1">
-    <AccptrAuthstnRspn>
-        <!-- Cabeçalho da mensagem -->
-        <Hdr>
-            <!-- Identifica o tipo de processo em que a mensagem se propõe.
-                 AUTP = AuthorisationResponse. -->
-            <MsgFctn>AUTP</MsgFctn>
-            <!-- Versão do protocolo utilizado na mensagem. -->
-            <PrtcolVrsn>2.0</PrtcolVrsn>
-            <!-- Dados para rastreamento da mensagem. -->
-            <Tracblt>
-                <!-- Data e hora da saída da mensagem no Host Stone. -->
-                <TracDtTmOut>2014-03-12T18:10:58</TracDtTmOut>
-            </Tracblt>
-        </Hdr>
-        <!-- Informações relacionadas à resposta da autorização. -->
-        <AuthstnRspn>
-            <!-- Ambiente da transação. -->
-            <Envt>
-                <!-- Dados do estabelecimento. -->
-                <MrchntId>
-                    <!-- dentificação do estabelecimento comercial no adquirente. Também
-                         conhecido internamente como “SaleAffiliationKey”. -->
-                    <Id>BFDB58AB9A8A48828C2647E18B7F1114</Id>
-                </MrchntId>
-                <!-- Dados do ponto de interação. -->
-                <PoiId>
-                    <!-- Identificador do ponto de interação -->
-                    <Id>2FB4C89A</Id>
-                </PoiId>
-            </Envt>
-            <!-- Informações da transação. -->
-            <Tx>
-                <!--- Dados de identificação da transação atribuída pelo POI -->
-                <TxId>
-                    <!-- Data local e hora da transação atribuído pelo POI.
-                         Este campo será ecoado pelo adquirente. -->
-                    <TxDtTm>2014-03-12T15:11:06</TxDtTm>
-                    <!-- Identificação da transação atribuída pelo POI.
-                         Este campo será ecoado pelo adquirente. -->
-                    <TxRef>06064f516a50483da7f189243c95ccca</TxRef>
-                </TxId>
-                <!-- Identificação da transação definida pela Stone. -->
-                <RcptTxId>00000034071000000215353</RcptTxId>
-                <!-- Detalhes da transação. -->
-                <TxDtls>
-                    <!-- Moeda utilizada na transação em conformidade com a ISO 4217.
-                         986 = BRL = Real Brasileiro
-                         http://pt.wikipedia.org/wiki/ISO_4217 -->
-                    <Ccy>986</Ccy>
-                    <!-- Valor total autorizado em centavos. -->
-                    <TtlAmt>100</TtlAmt>
-                    <!-- Modalidade do cartão utilizado na transação.
-                         CRDT = Crédito. -->
-                    <AcctTp>CHCK</AcctTp>
-                </TxDtls>
-            </Tx>
-            <!-- Dados de resposta da transação. -->
-            <TxRspn>
-                <!-- Resultado da autorização. -->
-                <AuthstnRslt>
-                    <!-- Dados da resposta da autorização. -->
-                    <RspnToAuthstn>
-                        <!-- Resposta da transação. -->
-                        <Rspn>APPR</Rspn>
-                        <!-- Código de resposta da autorização
-                             (equivalente ao campo 39 da ISO 8583 de 2003). -->
-                        <RspnRsn>0000</RspnRsn>
-                    </RspnToAuthstn>
-                    <!-- Código de autorização retornado pelo emissor. -->
-                    <AuthstnCd>007091</AuthstnCd>
-                    <!-- Indica se a mensagem precisa ser capturada posteriormente. -->
-                    <CmpltnReqrd>false</CmpltnReqrd>
-                </AuthstnRslt>
-            </TxRspn>
-        </AuthstnRspn>
-    </AccptrAuthstnRspn>
-</Document>
+<Conciliation>
+    <Header>
+        <GenerationDateTime>20151013145131</GenerationDateTime>
+        <StoneCode>123456789</StoneCode>
+        <LayoutVersion>2</LayoutVersion>
+        <FileId>020202</FileId>
+        <ReferenceDate>20150920</ReferenceDate>
+    </Header>
+    <FinancialTransactions>
+        <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>1</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>12345678912356</AcquirerTransactionKey>
+            <InitiatorTransactionKey>1117737</InitiatorTransactionKey>
+            <AuthorizationDateTime>20150818155931</AuthorizationDateTime>
+            <CaptureLocalDateTime>20150818125935</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Cancellations>
+                <Cancellation>
+                    <OperationKey>3635000017434024</OperationKey>
+                    <CancellationDateTime>20150920034340</CancellationDateTime>
+                    <ReturnedAmount>20.000000</ReturnedAmount>
+                    <Billing>
+                        <ChargedAmount>19.602000</ChargedAmount>
+                        <PrevisionChargeDate>20150921</PrevisionChargeDate>
+                    </Billing>
+                </Cancellation>
+            </Cancellations>
+        </Transaction>
+        <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>1</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>12345678912345</AcquirerTransactionKey>
+            <InitiatorTransactionKey>1331632</InitiatorTransactionKey>
+            <AuthorizationDateTime>20150920030009</AuthorizationDateTime>
+            <CaptureLocalDateTime>20150920000010</CaptureLocalDateTime>
+            <AccountType>2</AccountType>
+            <InstallmentType>1</InstallmentType>
+            <NumberOfInstallments>1</NumberOfInstallments>
+            <AuthorizedAmount>50.000000</AuthorizedAmount>
+            <CapturedAmount>50.000000</CapturedAmount>
+            <AuthorizationCurrencyCode>986</AuthorizationCurrencyCode>
+            <IssuerAuthorizationCode>094736</IssuerAuthorizationCode>
+            <International>True</International>
+            <BrandId>2</BrandId>
+            <CardNumber>132456******1122</CardNumber>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>50.000000</GrossAmount>
+                    <NetAmount>49.005000</NetAmount>
+                    <PrevisionPaymentDate>20151020</PrevisionPaymentDate>
+                </Installment>
+            </Installments>
+        </Transaction>
+        <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>1</Cancellations>
+                <Captures>1</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>0</Payments>
+            </Events>
+            <AcquirerTransactionKey>36350017433715</AcquirerTransactionKey>
+            <InitiatorTransactionKey>1331697</InitiatorTransactionKey>
+            <AuthorizationDateTime>20150920033610</AuthorizationDateTime>
+            <CaptureLocalDateTime>20150920003610</CaptureLocalDateTime>
+            <AccountType>2</AccountType>
+            <InstallmentType>1</InstallmentType>
+            <NumberOfInstallments>1</NumberOfInstallments>
+            <AuthorizedAmount>125.790000</AuthorizedAmount>
+            <CapturedAmount>125.790000</CapturedAmount>
+            <CanceledAmount>125.790000</CanceledAmount>
+            <AuthorizationCurrencyCode>986</AuthorizationCurrencyCode>
+            <IssuerAuthorizationCode>661137</IssuerAuthorizationCode>
+            <International>True</International>
+            <BrandId>1</BrandId>
+            <CardNumber>123456******1122</CardNumber>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Cancellations>
+                <Cancellation>
+                    <CancellationDateTime>20150920000000</CancellationDateTime>
+                    <ReturnedAmount>125.790000</ReturnedAmount>
+                </Cancellation>
+            </Cancellations>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>125.790000</GrossAmount>
+                    <NetAmount />
+                </Installment>
+            </Installments>
+        </Transaction>
+    </FinancialTransactions>
+    <FinancialEvents>
+        <Event>
+            <EventId>29869413</EventId>
+            <Description>PosRent</Description>
+            <Type>-22</Type>
+            <PrevisionPaymentDate>20150923</PrevisionPaymentDate>
+            <Amount>-590.000000</Amount>
+        </Event>
+    </FinancialEvents>
+    <FinancialTransactionsAccounts>
+        <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>1</Payments>
+            </Events>
+            <AcquirerTransactionKey>31550012403598</AcquirerTransactionKey>
+            <InitiatorTransactionKey>ad50f27deee549b2</InitiatorTransactionKey>
+            <AuthorizationDateTime>20150803210946</AuthorizationDateTime>
+            <CaptureLocalDateTime>20150803182445</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>123.440000</GrossAmount>
+                    <NetAmount>120.354375</NetAmount>
+                    <PaymentDate>20150920</PaymentDate>
+                    <PaymentId>109963</PaymentId>
+                </Installment>
+            </Installments>
+        </Transaction>
+        <Transaction>
+            <Events>
+                <CancellationCharges>0</CancellationCharges>
+                <Cancellations>0</Cancellations>
+                <Captures>0</Captures>
+                <ChargebackRefunds>0</ChargebackRefunds>
+                <Chargebacks>0</Chargebacks>
+                <Payments>1</Payments>
+            </Events>
+            <AcquirerTransactionKey>31550012405762</AcquirerTransactionKey>
+            <InitiatorTransactionKey>f172e42e9aa7446e</InitiatorTransactionKey>
+            <AuthorizationDateTime>20150803212449</AuthorizationDateTime>
+            <CaptureLocalDateTime>20150803183941</CaptureLocalDateTime>
+            <Poi>
+                <PoiType>4</PoiType>
+            </Poi>
+            <Installments>
+                <Installment>
+                    <InstallmentNumber>1</InstallmentNumber>
+                    <GrossAmount>468.400000</GrossAmount>
+                    <NetAmount>457.533120</NetAmount>
+                    <PaymentDate>20150920</PaymentDate>
+                    <PaymentId>109963</PaymentId>
+                </Installment>
+            </Installments>
+        </Transaction>
+    </FinancialTransactionsAccounts>
+    <FinancialEventAccounts>
+        <Event>
+            <EventId>38883564</EventId>
+            <PaymentId>109963</PaymentId>
+            <Description>FinancialAdjustment</Description>
+            <Type>5</Type>
+            <PaymentDate>20150920</PaymentDate>
+            <Amount>900.890000</Amount>
+        </Event>
+    </FinancialEventAccounts>
+    <Payments>
+        <Payment>
+            <Id>109963</Id>
+            <TotalAmount>1478.77</TotalAmount>
+            <TotalFinancialAccountsAmount>1478.77</TotalFinancialAccountsAmount>
+            <LastNegativeAmount>0.00</LastNegativeAmount>
+            <FavoredBankAccount>
+                <BankCode>1</BankCode>
+                <BankBranch>24111</BankBranch>
+                <BankAccountNumber>0123456</BankAccountNumber>
+            </FavoredBankAccount>
+        </Payment>
+    </Payments>
+    <Trailer>
+        <CapturedTransactionsQuantity>2</CapturedTransactionsQuantity>
+        <CanceledTransactionsQuantity>3</CanceledTransactionsQuantity>
+        <PaidInstallmentsQuantity>2</PaidInstallmentsQuantity>
+        <ChargedCancellationsQuantity>0</ChargedCancellationsQuantity>
+        <ChargebacksQuantity>0</ChargebacksQuantity>
+        <ChargebacksRefundQuantity>0</ChargebacksRefundQuantity>
+        <ChargedChargebacksQuantity>0</ChargedChargebacksQuantity>
+        <PaidChargebacksRefundQuantity>0</PaidChargebacksRefundQuantity>
+        <PaidEventsQuantity>1</PaidEventsQuantity>
+        <ChargedEventsQuantity>0</ChargedEventsQuantity>
+    </Trailer>
+</Conciliation>
 ```
 
-|Campo|Ocorrência|Tipo|Descrição| Obrigatório |
-|-----|----------|----|---------|-------------|
-|Header`<Hdr>`|[1..1]|Container|Cabeçalho da mensagem| Sim |
-|MessageFunction`<MsgFctn>`|[1..1]|CodeSet|Identifica o tipo de processo em que a mensagem se propõe. Fixo: `AUTP` = AuthorisationResponse.| Sim |
-|ProtocolVersion`<PrtcolVrsn>`|[1..1]|Text|Versão do protocolo utilizado na mensagem.| Sim |
-|CreationDateTime`<CreDtTm>`|[1..1]|Text|Data de criação da mensagem| Sim |
-|TraceDateTimeOut`<TracDtTmOut>`|[1..1]|DateTime|Data e hora da saída da mensagem no Host Stone.| Sim |
-|AuthorisationResponse`<AuthstnRspn>`|[1..1]|Container|Informações relacionadas à resposta da autorização.| Sim |
-|Environment`<Envt>`|[1..1]|Container|Ambiente da transação.| Sim |
-|Merchant Identification`<MrchntId>`|[1..1]|Container|Dados do estabelecimento.| Sim |
-|Identification`<Id>`|[1..1]|Text|Identificação do estabelecimento comercial no adquirente. Também conhecido internamente como “SaleAffiliationKey”.| Sim |
-|POIId`<POIId>`|[0..1]|Container|Dados do ponto de interação.| Não |
-|Identification`<Id>`|[1..1]|Text|Identificação do POI.| Sim |
-|Transaction`<Tx>`|[1..1]|Container|Informações da transação.| Sim |
-|TransactionIdentification`<TxId>`|[1..1]|Container|Dados de identificação da transação atribuída pelo POI (Ponto de interação).| Sim |
-|TransactionDateTime`<TxDtTm>`|[1..1]|DateTime|Data local e hora da transação atribuído pelo POI (ponto de interação). Este campo será ecoado pelo adquirente.| Sim |
-|TransactionReference`<TxRef>`|[1..1]|Text|Identificação da transação atribuída pelo POI (Ponto de interação). Este campo será ecoado pelo adquirente.| Sim |
-|RecipientTransactionIdentification`<RcptTxId>`|[1..1]|Text|Identificação da transação definida pela Stone.| Sim |
-|TransactionDetails`<TxDtls>`|[1..1]|Container|Detalhes da transação.| Sim |
-|Currency`<Ccy>`|[1..1]|CodeSet|Moeda utilizada na transação em conformidade com a [ISO 4217](http://pt.wikipedia.org/wiki/ISO_4217) - `986` = Real Brasileiro.| Sim |
-|TotalAmount`<TtlAmt>`|[1..1]|Amount|Valor total autorizado em centavos.| Sim |
-|AccountType`<AcctTp>`|[0..1]|CodeSet|Modalidade do cartão utilizado na transação. `CRDT` = Crédito.| Não |
-|TransactionResponse`<TxRspn>`|[1..1]|Container|Dados de resposta da transação.| Sim |
-|AuthorisationResult`<AuthstnRslt>`|[1..1]|Container|Resultado da autorização.| Sim |
-|ResponseToAuthorisation`<RspnToAuthstn>`|[1..1]|Container|Dados da resposta da autorização.| Sim |
-|Response`<Rspn>`|[1..1]|CodeSet|Resposta da transação: `DECL: Declined`, `APPR: Aproved`, `PART: PartialApproved` e `TECH: TechinicalError`.| Sim |
-|ResponseReason`<RspnRsn>`|[1..1]|Text|Código de resposta da autorização (equivalente ao campo 39 da ISO 8583 de 2003).| Sim |
-|AuthorisationCode`<AuthstnCd>`|[0..1]|Text|Código de autorização retornado pelo emissor.| Não |
-|CompletionRequired`<CmpltnReqrd>`|[0..1]|Boolean|Indica se a mensagem precisa ser capturada posteriormente.| Não |
+# Apêndice
 
-#
-### Legendas
+## AccountType
 
-Ocorrência<br>
-[0..0] -> Dado não obrigatório no envio da requisição e na resposta<br>
-[0..1] -> Dado não obrigatório no envio da requisição, porém obrigatório na resposta<br>
-[1..0] -> Dado obrigatório no envio da requisição, porém não obrigatório na resposta<br>
-[1..1] -> Dado obrigatório no envio da requisição e na resposta<br>
+Retornar à [FinancialTransaction](#FinancialTransaction)
 
-#
+|Valor|Descrição|
+|-----|---------|
+|1|Debit|
+|2|Credit|
 
-## Captura posterior
+## InstallmentType
 
-### Autorização com captura posterior
+Retornar à [FinancialTransaction](#FinancialTransaction)
 
-<aside class="notice">Uma mensagem específica para a captura deve ser enviada no momento oportuno</aside>
+|Valor|Descrição|
+|-----|---------|
+|1|À vista lojista|
+|2|parcelado lojista|
+|3|parcelado emissor|
 
-O estabelecimento pode escolher enviar ou não a mensagem de captura para uma transação de crédito. Em alguns casos, como de reservas em hotéis, o cliente acessa o site, escolhe o hotel, quarto, total de diárias e faz a reserva. O site do hotel, ao receber a solicitação de reserva, solicita à Stone que autorize o valor da reserva, mas não faz a captura até que o cliente faça o checkin no hotel.
+## BrandId
 
-![autorização com captura posterior](/images/autorizacao-com-captura-posterior.png)
+Retornar à [FinancialTransaction](#FinancialTransaction)
 
-1. O estabelecimento envia uma `AcceptorAuthorisationRequest` ao adquirente solicitando a autorização da transação.
-2. Uma `AcceptorAuthorisationResponse` é devolvida pelo adquirente, informando ao estabelecimento sobre o êxito da autorização.
-3. Se a transação tiver sido concluída com êxito no lado do estabelecimento, o estabelecimento envia uma `AcceptorCompletionAdvice` para capturar a transação.
-4. O adquirente retorna uma `AcceptorCompletionAdviceResponse`, reconhecendo o resultado e captura financeira da transação.
+|Valor|Descrição|
+|-----|---------|
+|1|Visa|
+|2|MasterCard|
 
-<aside class="notice">A tag TxCaptr deve ser enviada com valor FALSE</aside>
+## POIType
 
-* [Exemplo de XML de requisição para autorização](/attachment/caso-2_autorizacao.xml)
-* [Exemplo de XML de requisição para captura](/attachment/caso-2_captura.xml)
+Retornar à [FinancialTransaction](#FinancialTransaction)
+
+|Valor|Descrição|
+|-----|---------|
+|1|POS|
+|2|MICRO POS|
+|3|TEF|
+|4|ECOMMERCE|
+
+## Type
+
+Retornar à [FinancialEvents](#FinancialEvents)
+
+|Valor|Descrição|
+|-----|---------|
+|2|InternalTransfer (Transferência Interna)|
+|5|FinancialAdjustment (Ajuste financeiro)|
+|22|PosRent (Aluguel de POS)|
 
 
+# Dúvidas
 
-### POST /CompletionAdvice
-
-### XML de requisição de Captura comentado
-Caso você deseje criar uma transação com captura posterior o campo deve `TxCaptr` deve ser preenchido como ``false`` na requisição de Autorização. Então, mensagem `AcceptorCompletionAdvice` deve ser enviada pelo estabelecimento para confirmar uma transação previamente autorizada. Esta mensagem também é utilizada como um pedido de desfazimento de transações. A url da requisição é [https://e-commerce.stone.com.br/CompletionAdvice](https://e-commerce.stone.com.br/CompletionAdvice) (produção) ou [https://sandox-auth-integration.stone.com.br/CompletionAdvice](https://sandox-auth-integration.stone.com.br/CompletionAdvice) (homologação).
-
-```xml
-<Document xmlns="urn:AcceptorCompletionAdviceV02.1">
-    <AccptrCmpltnAdvc>
-        <!-- Cabeçalho da mensagem. -->
-        <Hdr>
-            <!-- Identifica o tipo de processo em que a mensagem se propõe. -->
-            <MsgFctn>CMPV</MsgFctn>
-            <!-- Versão do protocolo utilizado na mensagem. -->
-            <PrtcolVrsn>2.0</PrtcolVrsn>
-        </Hdr>
-        <!-- Informações relacionadas ao processo de captura ou desfazimento de uma autorização. -->
-        <CmpltnAdvc>
-            <!-- Ambiente da transação. -->
-            <Envt>
-                <!-- Dados do estabelecimento. -->
-                <Mrchnt>
-                    <!-- Identificação do estabelecimento comercial no adquirente. -->
-                    <Id>
-                        <Id>00000000000000000000000000000321</Id>
-                    </Id>
-                </Mrchnt>
-            </Envt>
-            <!-- Dados da transação. -->
-            <Tx>
-                <!-- Identificação da transação definida pelo sistema que se comunica com
-                     o Host Stone. -->
-                <InitrTxId>123123123</InitrTxId>
-                <!-- Dados de identificação da transação atribuída pelo POI. -->
-                <TxId>
-                    <!-- Data local e hora da transação atribuído pelo POI. -->
-                    <TxDtTm>2014-06-11T17:15:44</TxDtTm>
-                    <!-- Identificação da transação atribuída pelo POI. -->
-                    <TxRef>1111</TxRef>
-                </TxId>
-                <!-- Identificação da transação original -->
-                <OrgnlTx>
-                    <!-- Identificação da transação definida pelo adquirente. -->
-                    <RcptTxId>9CDF257AQKR</RcptTxId>
-                </OrgnlTx>
-                <!-- Detalhes da transação. -->
-                <TxDtls>
-                    <!-- Moeda utilizada na transação em conformidade com a ISO 4217. -->
-                    <Ccy>986</Ccy>
-                    <!-- Valor total da transação em centavos. -->
-                    <TtlAmt>100</TtlAmt>
-                </TxDtls>
-            </Tx>
-        </CmpltnAdvc>
-    </AccptrCmpltnAdvc>
-</Document>
-```
-
-|Campo|Ocorrência|Tipo|Descrição| Obrigatório |
-|-----|----------|----|---------|-------------|
-|Header<Hdr>|[1..1]|Container|Cabeçalho da mensagem.| Sim |
-|MessageFunction<MsgFctn>|[1..1]|CodeSet|Identifica o tipo de processo em que a mensagem se propõe. `CMPV = Completion Advice` ou `RVRA = ReversalAdvice`.| Sim |
-|ProtocolVersion <PrtcolVrsn>|[1..1]|Text|Versão atual: “2.0”.| Sim |
-|CompletionAdvice <CmpltnAdvc>|[1..1]|Container|Informações relacionadas ao processo de captura ou desfazimento de uma autorização.| Sim |
-|Environment<Envt>|[1..1]|Container|Ambiente da transação.| Sim |
-|Merchant <Mrchnt>|[1..1]|Container|Dados do estabelecimento.| Sim |
-|Identification<Id>|[1..1]|Text|Identificação do estabelecimento comercial no adquirente. Também conhecido internamente como “SaleAffiliationKey”.| Sim |
-|Transaction`<Tx>`|[1..1]|Container|Dados da transação.| Sim |
-|TransactionIdentification`<TxId>`|[1..1]|Container|Dados de identificação da transação atribuída pelo POI.| Sim |
-|TransactionDateTime`<TxDtTm>`|[1..1]|DateTime|Data local e hora da transação atribuído pelo POI. Este campo será ecoado pelo adquirente.| Sim |
-|TransactionReference`<TxRef>`|[1..1]|Text|Identificação da transação atribuída pelo POI. Este campo será ecoado pelo adquirente.| Sim |
-|OriginalTransaction`<OrgnlTx>`|[0..1]|Container|Identificação da transação original| Não |
-|RecipientTransactionIdentification`<RcptTxId>`|[0..1]|Text|Identificação da transação definida pelo adquirente.| Não |
-|TransactionDetails`<TxDtls>`|[1..1]|Container|Detalhes da transação.| Sim |
-|Currency`<Ccy>`|[1..1]|CodeSet|Moeda utilizada na transação em conformidade com a ISO 4217.| Sim |
-|TotalAmount`<TtlAmt>`|[1..1]|Amount|Valor total da transação em centavos.| Sim |
-
-#
-### Legendas
-
-Ocorrência<br>
-[0..0] -> Dado não obrigatório no envio da requisição e na resposta<br>
-[0..1] -> Dado não obrigatório no envio da requisição, porém obrigatório na resposta<br>
-[1..0] -> Dado obrigatório no envio da requisição, porém não obrigatório na resposta<br>
-[1..1] -> Dado obrigatório no envio da requisição e na resposta<br>
-
-#
-
-### XML de resposta de Captura comentado
-A mensagem `AcceptorCompletionAdviceResponse` é enviada pelo adquirente para avisar o estabelecimento sobre o reconhecimento do resultado da operação de pagamento, bem como a transferência dos dados financeiros da transação contidas no `AcceptorCompletionAdvice`. Esta mensagem também é utilizada como resposta para o processo de “desfazimento de transações”.
-
-```xml
-<Document xmlns="urn:AcceptorCompletionAdviceResponseV02.1">
-    <AccptrCmpltnAdvcRspn>
-        <!-- Cabeçalho da mensagem. -->
-        <Hdr>
-            <!-- Identifica o tipo de processo em que a mensagem se propõe.
-                 CMPK = CompletionAdviceResponse ou
-                 RVRR = ReversalAdviceResponse. -->
-            <MsgFctn>CMPK</MsgFctn>
-            <!-- Versão do protocolo utilizado na mensagem. -->
-            <PrtcolVrsn>2.0</PrtcolVrsn>
-        </Hdr>
-        <!-- Informações sobre a resposta da captura ou desfazimento de uma autorização. -->
-        <CmpltnAdvcRspn>
-            <!-- Ambiente da transação. -->
-            <Envt>
-                <!-- Dados do estabelecimento. -->
-                <Mrchnt>
-                    <!-- Identificação do estabelecimento comercial no adquirente.
-                         Também conhecido internamente como “SaleAffiliationKey”. -->
-                    <Id>BFDB58AB9A8A48828C2647E18B7F1114</Id>
-                </Mrchnt>
-            </Envt>
-            <!-- Dados da transação. -->
-            <Tx>
-                <!-- Dados da identificação da transação definida pelo POI. -->
-                <TxId>
-                    <!-- Data e hora da transação -->
-                    <TxDtTm>2014-03-12T15:17:59</TxDtTm>
-                    <!-- Identificação da transação definida pelo ponto de interação (POI,
-                         estabelecimento, lojista, etc). Este campo será ecoado pelo adquirente. -->
-                    <TxRef>7ca686eb242b4c0482c58961f5d3aac7</TxRef>
-                </TxId>
-                <!-- Resultado da transação.
-                     DECL = Declined,
-                     APPR = Approved,
-                     PART = Partial Approved,
-                     TECH = Technical Error. -->
-                <Rspn>APPR</Rspn>
-            </Tx>
-        </CmpltnAdvcRspn>
-    </AccptrCmpltnAdvcRspn>
-</Document>
-```
-
-|Campo|Ocorrência|Tipo|Descrição| Obrigatório |
-|-----|----------|----|---------|-------------|
-|Header`<Hdr>`|[1..1]|Container|Cabeçalho da mensagem.| Sim |
-|MessageFunction`<MsgFctn>`|[1..1]|CodeSet|Identifica o tipo de processo em que a mensagem se propõe. “CMPK” = CompletionAdviceResponse ou “RVRR” = ReversalAdviceResponse.| Sim |
-|CreationDateTime`<CreDtTm>`|[0..1]|Text|Data de criação da mensagem| Não |
-|ProtocolVersion`<PrtcolVrsn>`|[1..1]|Text|Versão do protocolo utilizado na mensagem.| Sim |
-|CompletionAdviceResponse`<CmpltnAdvcRspn>`|[1..1]|Container|Informações sobre a resposta da captura ou desfazimento de uma autorização.| Sim |
-|Environment`<Envt>`|[1..1]|Container|Ambiente da transação.| Sim |
-|Merchant Identification`<MrchntId>`|[1..1]|Container|Dados do estabelecimento.| Sim |
-|Identification`<Id>`|[1..1]|Text|Identificação do estabelecimento comercial no adquirente. Também conhecido como “SaleAffiliationKey”.| Sim |
-|POIId`<POIId>`|[0..1]|Container|Dados do ponto de interação.| Não |
-|Transaction`<Tx>`|[1..1]|Container|Dados da transação.| Sim |
-|TransactionIdentification`<TxId>`|[1..1]|Container|Dados da identificação da transação definida pelo POI.| Sim |
-|TransactionDateTime`<TxDtTm>`|[1..1]|DateTime|Data e hora da transação| Sim |
-|TransactionReference`<TxRef>`|[1..1]|Text|Identificação da transação definida pelo ponto de interação. Este campo será ecoado pelo adquirente.| Sim |
-|Response`<Rspn>`|[1..1]|CodeSet|Resultado da transação. DECL = Declined, APPR = Approved, PART = Partial Approved, TECH = Technical Error.| Sim |
-
-#
-### Legendas
-
-Ocorrência<br>
-[0..0] -> Dado não obrigatório no envio da requisição e na resposta<br>
-[0..1] -> Dado não obrigatório no envio da requisição, porém obrigatório na resposta<br>
-[1..0] -> Dado obrigatório no envio da requisição, porém não obrigatório na resposta<br>
-[1..1] -> Dado obrigatório no envio da requisição e na resposta<br>
-
-#
-
-## Cancelamento
-
-O cancelamento de uma autorização é outro caso comum, tanto para ecommerce, quanto para casos de reserva. Algumas vezes, por algum motivo, o cliente pode simplesmente desistir de uma compra.
-
-![cancelamento](/images/cancelamento-com-captura.png)
-
-1. O estabelecimento envia uma `AcceptorAuthorisationRequest` para o adquirente para realizar um pedido de autorização
-2. Uma `AcceptorAuthorisationResponse` é enviada pelo adquirente confirmando e aprovando o pedido de autorização
-3. Uma `AcceptorCompletionAdvice` é utilizada para informar ao adquirente sobre a captura da transação
-4. O adquirente envia uma `AcceptorCompletionAdviceResponse` reconhecendo o pedido de cancelamento por parte do estabelecimento;
-
-Nesta transação o estabelecimento não necessita de nenhum pedido de cancelamento prévio pois supomos que ele já possui as informações de que o cancelamento pode realmente ser realizado.
-
-* [Exemplo de XML de requisição para cancelamento](/attachment/caso-4_cancelamento.xml)
-
-### POST /Cancellation
-
-O cancelamento é o serviço que permite que um estabelecimento cancele uma transação concluída com êxito. Também é conhecido como “desfazimento manual”. O prazo para que o cancelamento seja realizado é 180 dias.
-
-### XML de requisição de Cancelamento comentado
-A mensagem `AcceptorCancellationRequest` é utilizada para realizar um pedido de cancelamento de uma transação autorizada e deve ser enviada para a url [https://e-commerce.stone.com.br/Cancellation](https://e-commerce.stone.com.br/Cancellation) ( produção ) ou [https://sandbox-auth-integration.stone.com.br/Cancellation](https://sandbox-auth-integration.stone.com.br/Cancellation) (homologação). 
-
-```xml
-<Document xmlns="urn:AcceptorCancellationRequestV02.1">
-    <AccptrCxlReq>
-        <!-- Cabeçalho da mensagem -->
-        <Hdr>
-            <!-- Identifica o tipo de processo em que a mensagem se propõe. -->
-            <MsgFctn>CCAQ</MsgFctn>
-            <!-- Versão do protocolo utilizado na mensagem. -->
-            <PrtcolVrsn>2.0</PrtcolVrsn>
-        </Hdr>
-        <!-- Informações relacionadas à requisição de cancelamento. -->
-        <CxlReq>
-            <!-- Ambiente da transação. -->
-            <Envt>
-                <!-- Dados do estabelecimento. -->
-                <Mrchnt>
-                    <!-- Identificação do estabelecimento comercial. -->
-                    <Id>
-                        <!-- Identificação do estabelecimento comercial no adquirente. -->
-                        <Id>BFDB58AB9A8A48828C2647E18B7F1114</Id>
-                    </Id>
-                </Mrchnt>
-                <!-- Dados do Ponto de Interação. -->
-                <POI>
-                    <!-- Identificação do ponto de interação -->
-                    <Id>
-                        <!-- Código de identificação do POI atribuído pelo estabelecimento. -->
-                        <Id>2FB4C89A</Id>
-                    </Id>
-                </POI>
-            </Envt>
-            <!-- Dados da transação. -->
-            <Tx>
-                <!-- Indica se os dados da transação devem ser capturados `true` ou não
-                     `false` imediatamente. -->
-                <TxCaptr>true</TxCaptr>
-                <!-- Identificação da transação atribuída pelo POI. -->
-                <TxId>
-                    <!-- Data e hora local da transação definidas pelo ponto de interação. -->
-                    <TxDtTm>2014-03-12T15:09:00</TxDtTm>
-                    <!-- Identificação da transação definida pelo ponto de interação.
-                         O formato é livre contendo no máximo 32 caracteres. -->
-                    <TxRef>12345ABC</TxRef>
-                </TxId>
-                <!-- Detalhes da transação -->
-                <TxDtls>
-                    <!-- Moeda utilizada na transação em conformidade com a ISO 4217.-->
-                    <Ccy>986</Ccy>
-                    <!-- Valor total da transação em centavos. -->
-                    <TtlAmt>100</TtlAmt>
-                </TxDtls>
-                <!-- Dados da transação original -->
-                <OrgnlTx>
-                    <!-- Identificação da transação definida pelo sistema que se comunica
-                         com o Host Stone. -->
-                    <InitrTxId>123123123</InitrTxId>
-                    <!-- Identificação da transação definida pelo adquirente. -->
-                    <RcptTxId>00000034071000000215346</RcptTxId>
-                </OrgnlTx>
-            </Tx>
-        </CxlReq>
-    </AccptrCxlReq>
-</Document>
-```
-
-|Campo|Ocorrência|Tipo|Descrição| Obrigatório |
-|-----|----------|----|---------|-------------|
-|Header`<Hdr>`|[1..1]|Container|Cabeçalho da mensagem| Sim |
-|MessageFunction`<MsgFctn>`|[1..1]|CodeSet|Identifica o tipo de processo em que a mensagem se propõe. Fixo: “CCAQ” = Cancellation Request.| Sim |
-|ProtocolVersion`<PrtcolVrsn>`|[1..1]|Text|Versão do protocolo utilizado na mensagem.| Sim |
-|CancellationRequest`<CxlReq>`|[1..1]|Container|Informações relacionadas à requisição de cancelamento.| Sim |
-|Environment`<Envt>`|[1..1]|Container|Ambiente da transação.| Sim |
-|Merchant`<Mrchnt>`|[1..1]|Container|Dados do estabelecimento.| Sim |
-|Identification`<Id>`|[1..1]|Container|Identificação do estabelecimento comercial.| Sim |
-|Identification`<Id>`|[1..1]|Text|Identificação do estabelecimento comercial no adquirente. Também conhecido como “SaleAffiliationKey”.| Sim |
-|Poi`<POI>`|[1..1]|Container|Dados do Ponto de Interação.| Sim |
-|Identification`<Id>`|[1..1]|Container|Identificação do ponto de interação| Sim |
-|Identification`<Id>`|[1..1]|Text|Código de identificação do ponto de interação atribuído pelo estabelecimento.| Sim |
-|Capabilities|[0..1]|Container|Capacidades do Ponto de interação.| Não |
-|PrintLineWidth`<PrtLineWidth>`|[0..1]|Text|Número máximo de colunas de cada linha a ser impressa no cupom. A quantidade mínima de colunas é de 38. Se o POI enviar menos do que 38, o Host Stone não irá retornar os dados do recibo.| Não |
-|Transaction`<Tx>`|[1..1]|Container|Dados da transação.| Sim |
-|TransactionCapture`<TxCaptr>`|[1..1]|Bool|Indica se os dados da transação devem ser capturados `true` ou não `false` imediatamente.| Sim |
-|TransactionIdentification`<TxId>`|[1..1]|Container|Identificação da transação atribuída pelo POI (Ponto de interação).| Sim |
-|TransactionDateTime`<TxDtTm>`|[1..1]|DateTime|Data e hora local da transação definidas pelo ponto de interação.| Sim |
-|TransactionReference`<TxRef>`|[1..1]|Text|Identificação da transação definida pelo ponto de interação. O formato é livre contendo no máximo 32 caracteres.| Sim |
-|TransactionDetails`<TxDtls>`|[1..1]|Container|Detalhes da transação| Sim |
-|Currency`<Ccy>`|[1..1]|CodeSet|Moeda utilizada na transação em conformidade com a ISO 4217.| Sim |
-|TotalAmount`<TtlAmt>`|[1..1]|Amount|Valor total da transação em centavos| Sim |
-|OriginalTransaction`<OrgnlTx>`|[1..1]|Container|Dados da transação original | Sim |
-|InitiatorTransactionIdentification`<InitrTxId>`|[0..1]|Text|Identificação da transação definida pelo sistema que se comunica com o Host Stone.| Sim |
-|RecipientTransactionIdentification`<RcptTxId>`|[1..1]|Text|Identificação da transação definida pelo adquirente.| Sim |
-
-#
-### Legendas
-
-Ocorrência<br>
-[0..0] -> Dado não obrigatório no envio da requisição e na resposta<br>
-[0..1] -> Dado não obrigatório no envio da requisição, porém obrigatório na resposta<br>
-[1..0] -> Dado obrigatório no envio da requisição, porém não obrigatório na resposta<br>
-[1..1] -> Dado obrigatório no envio da requisição e na resposta<br>
-
-#
-
-### XML de resposta de Cancelamento comentado
-A mensagem AcceptorCancellationResponse é respondida pelo adquirente com as informações sobre a requisição de cancelamento `AcceptorCancellationRequest`. Importante informar que os dados do recibo de cancelamento são enviados somente nesta mensagem.
-
-```xml
-<Document xmlns="urn:AcceptorCancellationResponseV02.1">
-    <AccptrCxlRspn>
-        <!-- Cabeçalho da mensagem -->
-        <Hdr>
-            <!-- Identifica o tipo de processo em que a mensagem se propõe.
-                 CCAP = Cancellation Response. -->
-            <MsgFctn>CCAP</MsgFctn>
-            <!-- Versão do protocolo utilizado na mensagem. -->
-            <PrtcolVrsn>2.0</PrtcolVrsn>
-        </Hdr>
-        <!-- Informações relacionadas à resposta de cancelamento. -->
-        <CxlRspn>
-            <!-- Ambiente da transação. -->
-            <Envt>
-                <!-- Dados do estabelecimento. -->
-                <MrchntId>
-                    <!-- Identificação do estabelecimento comercial no adquirente.
-                         Também conhecido internamente como “SaleAffiliationKey”. -->
-                    <Id>BFDB58AB9A8A48828C2647E18B7F1114</Id>
-                </MrchntId>
-            </Envt>
-            <!-- Dados da transação. -->
-            <Tx>
-                <!-- Indica se os dados da transação devem ser capturados `true`
-                     ou não `false` imediatamente. -->
-                <TxCaptr>true</TxCaptr>
-                <!-- Identificação da transação atribuída pelo POI. -->
-                <TxId>
-                    <!-- Data e hora local da transação definidas pelo ponto de interação. -->
-                    <TxDtTm>2014-03-12T15:09:00</TxDtTm>
-                    <!-- Identificação da transação definida pelo ponto de interação.
-                         Este campo será ecoado pelo adquirente. -->
-                    <TxRef>123456798</TxRef>
-                </TxId>
-                <!-- Detalhes da transação -->
-                <TxDtls>
-                    <!-- Moeda utilizada na transação em conformidade com a ISO 4217. -->
-                    <Ccy>986</Ccy>
-                    <!-- Valor total da transação em centavos. -->
-                    <TtlAmt>100</TtlAmt>
-                </TxDtls>
-            </Tx>
-            <!-- Dados de resposta da transação. -->
-            <TxRspn>
-                <!-- Informações sobre o resultado da autorização a ser cancelada. -->
-                <AuthstnRslt>
-                    <!-- Dados de resposta da autorização a ser cancelada. -->
-                    <RspnToAuthstn>
-                        <!-- Resposta da transação.
-                             DECL: Declined
-                             APPR: Aproved
-                             PART: PartialApproved
-                             TECH: TechinicalError -->
-                        <Rspn>APPR</Rspn>
-                        <!-- Código de resposta da autorização
-                             equivalente ao campo 39 da ISO 8583 de 2003. -->
-                        <RspnRsn>0000</RspnRsn>
-                    </RspnToAuthstn>
-                </AuthstnRslt>
-            </TxRspn>
-        </CxlRspn>
-    </AccptrCxlRspn>
-</Document>
-```
-
-|Campo|Ocorrência|Tipo|Descrição|Obrigatório|
-|-----|----------|----|---------|-----------|
-|Header`<Hdr>`|[1..1]|Container|Cabeçalho da mensagem| Sim |
-|MessageFunction`<MsgFctn>`|[1..1]|CodeSet|Identifica o tipo de processo em que a mensagem se propõe. Fixo: “CCAP” = Cancellation Response.| Sim |
-|ProtocolVersion`<PrtcolVrsn>`|[1..1]|Text|Versão do protocolo utilizado na mensagem.| Sim |
-|CreationDateTime`<CreDtTm>`|[0..1]|Text|Data de criação da mensagem| Não |
-|CancellationResponse`<CxlRspn>`|[1..1]|Container|Informações relacionadas à resposta de cancelamento.| Sim |
-|Environment`<Envt>`|[1..1]|Container|Ambiente da transação.| Sim |
-|Merchant Identification`<MrchntId>`|[0..1]|Container|Dados do estabelecimento.| Não |
-|Identification`<Id>`|[1..1]|Text|Identificação do estabelecimento comercial no adquirente. Também conhecido internamente como “SaleAffiliationKey”.| Sim |
-|POIId`<POIId>`|[0..1]|Container|Dados do ponto de interação| Não |
-|Identification`<Id>`|[1..1]|Text|Código de identificação do ponto de interação atribuído pelo estabelecimento (Campo ecoado).| Sim |
-|Transaction`<Tx>`|[1..1]|Container|Dados da transação.| Sim |
-|TransactionCapture`<TxCaptr>`|[1..1]|Bool|Indica se os dados da transação devem ser capturados `true` ou não `false` imediatamente.| Sim |
-|TransactionIdentification`<TxId>`|[1..1]|Container|Identificação da transação atribuída pelo POI.| Sim |
-|TransactionDateTime`<TxDtTm>`|[1..1]|DateTime|Data e hora local da transação definidas pelo ponto de interação.| Sim |
-|TransactionReference`<TxRef>`|[1..1]|Text|Identificação da transação definida pelo ponto de interação. Este campo será ecoado pelo adquirente.| Sim |
-|TransactionDetails`<TxDtls>`|[1..1]|Container|Detalhes da transação| Sim |
-|Currency`<Ccy>`|[1..1]|CodeSet|Moeda utilizada na transação em conformidade com a ISO 4217.| Sim |
-|TotalAmount`<TtlAmt>`|[1..1]|Amount|Valor total da transação em centavos.| Sim |
-|TransactionResponse`<TxRspn>`|[1..1]|Container| Dados de resposta da transação.| Sim |
-|AuthorisationResult`<AuthstnRslt>`|[1..1] |Container| Informações sobre o resultado da autorização a ser cancelada.| Sim |
-|ResponseToAuthorisation`<RspnToAuthstn>`|[1..1]|Container|Dados de resposta da autorização a ser cancelada.| Sim |
-|Response`<Rspn>`|[1..1]|CodeSet|Resposta da transação. DECL: Declined; APPR: Aproved; PART: PartialApproved; TECH: TechinicalError;| Sim |
-|ResponseReason`<RspnRsn>`|[0..1]|Text|Código de resposta da autorização.| Não |
-|CompletionRequired`<CmpltnReqrd>`|[0..1]|Bool|Indica se a mensagem precisa ser capturada posteriormente.| Não |
-
-#
-### Legendas
-
-Ocorrência<br>
-[0..0] -> Dado não obrigatório no envio da requisição e na resposta<br>
-[0..1] -> Dado não obrigatório no envio da requisição, porém obrigatório na resposta<br>
-[1..0] -> Dado obrigatório no envio da requisição, porém não obrigatório na resposta<br>
-[1..1] -> Dado obrigatório no envio da requisição e na resposta<br>
-
-#
-
-# Códigos de retorno
-
-Os códigos de retorno listados abaixo fazem referência aos possíveis retornos do campo **ResponseReason** `<RspnRsn>`
-
-## Transações APROVADAS
-| Código | Mensagem | Orientação | Pode retentar? |
-| ------ | -------- | ---------- | -------------- |
-| 0000 | Transação autorizada | # | # |
-| 0001 | Transação autoriada | Verifique a identidade antes de autorizar | # |
-
-## Transações NEGADAS
-| Código | Mensagem | Orientação | Pode retentar? |
-| ------ | -------- | ---------- | -------------- |
-| 1000 | Transação não autorizada | # | # |
-| 1001 | Cartão vencido | # | # |
-| 1002 | Transação não permitida | # | # |
-| 1003 | Rejeitado emissor | Oriente o portador a entrar em contato com o banco emissor do cartão. | # |
-| 1004 | Cartão com restrição | Oriente o portador a entrar em contato com o banco emissor do cartão. | # |
-| 1005 | Transação não autorizada | # | # |
-| 1006 | Tentativas de senha excedidas  | # | # |
-| 1007 | Rejeitado emissor | Oriente o portador a entrar em contato com o banco emissor do cartão. | # |
-| 1008 | Rejeitado emissor | Oriente o portador a entrar em contato com o banco emissor do cartão. | # |
-| 1009 | Transação não autorizada | # | # |
-| 1010 | Valor inválido | # | # |
-| 1011 | Cartão inválido | # | # |
-| 1013 | Transação não autorizada  | # | # |
-| 1014 | Tipo de conta inválido | O tipo de conta selecionado não existe. Ex: uma transação de crédito com um cartão de débito. | # |
-| 1016 | Saldo insuficiente | # | Sim |
-| 1017 | Senha inválida | # | Sim |
-| 1019 | Transação não permitida | # | # |
-| 1020 | Transação não permitida  | # | # |
-| 1021 | Rejeitado emissor | Oriente o portador a entrar em contato com o banco emissor do cartão. | # |
-| 1022 | Cartão com restrição | # | # |
-| 1023 | Rejeitado emissor | Oriente o portador a entrar em contato com o banco emissor do cartão. | # |
-| 1024 | Transação não permitida  | # | # |
-| 1025 | Cartão bloqueado | Oriente o portador a entrar em contato com o banco emissor do cartão. | # |
-| 1042 | Tipo de conta inválido | O tipo de conta selecionado não existe. Ex: uma transação de crédito com um cartão de débito. | # |
-| 1045 | Código de segurança inválido | # | Sim |
-| 2000 | Cartão com restrição | # | # |
-| 2001 | Cartão vencido | # | # |
-| 2002 | Transação não permitida | # | # |
-| 2003 | Rejeitado emissor | Oriente o portador a entrar em contato com o banco emissor do cartão. | # |
-| 2004 | Cartão com restrição | Oriente o portador a entrar em contato com o banco emissor do cartão. | # |
-| 2005 | Transação não autorizada  | # | # |
-| 2006 | Tentativas de senha excedidas | # | # |
-| 2007 | Cartão com restrição | # | # |
-| 2008 | Cartão com restrição | # | # |
-| 2009 | Cartão com restrição | # | # |
-| 9102 | Transação inválida | # | # |
-| 9108 | Erro no processamento | # | Sim |
-| 9109 | Erro no processamento | # | Sim |
-| 9111 | Time-out na transação | # | Sim |
-| 9112 | Emissor indisponível | # | Sim |
-| 9999 | Erro não especificado | # | # |
-
+Tem dúvidas ou sugestões? Entre em contato conosco: [integracoes@stone.com.br](mailto:integracoes@stone.combr)

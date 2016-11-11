@@ -26,16 +26,12 @@ under the License.
     $(".lang-selector a").removeClass('active');
     $(".lang-selector a[data-language-name='" + language + "']").addClass('active');
     for (var i=0; i < languages.length; i++) {
-      $(".highlight." + languages[i]).parent().hide();
+      $(".highlight." + languages[i]).hide();
     }
-    $(".highlight." + language).parent().show();
-
-    global.toc.calculateHeights();
+    $(".highlight." + language).show();
 
     // scroll to the new location of the position
-    if ($(window.location.hash).get(0)) {
-      $(window.location.hash).get(0).scrollIntoView(true);
-    }
+    $(window.location.hash).get(0).scrollIntoView(true);
   }
 
   // if a button is clicked, add the state to the history

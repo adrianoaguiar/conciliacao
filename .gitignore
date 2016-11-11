@@ -5,6 +5,7 @@
 coverage
 InstalledFiles
 lib/bundler/man
+.swp
 pkg
 rdoc
 spec/reports
@@ -14,6 +15,7 @@ tmp
 *.DS_STORE
 build/
 .cache
+*.swo
 
 # YARD artifacts
 .yardoc

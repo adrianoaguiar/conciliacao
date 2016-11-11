@@ -296,7 +296,7 @@ Nó filho de **FinancialTransactionsAccounts** que contém as informações refe
 
 <aside class="notice"> Informativo (Transaction)
 <ul>
-<li><b>* Elemento que aparecerá quando houver o desconto de um cancelamento &ltCancellationCharges&gt1&ltCancellationCharges&gt</b></li>
+<li><b>* Elemento que aparecerá quando houver o desconto de um cancelamento &lt;CancellationCharges&gt;1&lt;CancellationCharges&gt;</b></li>
 </ul>
 </aside>
 

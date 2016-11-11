@@ -373,3 +373,15 @@ table {
     border-collapse: collapse;
     border-spacing: 0;
 }
+
+aside.warning {
+	color: #8B0000
+}
+
+aside.notice {
+	color: #4169E1
+}
+
+aside.success {
+	color: #006400
+}

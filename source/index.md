@@ -3,9 +3,12 @@ title: Conciliação Stone
 
 language_tabs:
 
-- shell: cURL
-- json: JSON
-- xml: XML
+- xml shell: XML
+- xml Captura: XML Captura
+- xml Liquidação: XML Liquidação
+- xml Cancelamento: XML Cancelamento
+- xml Chargeback: XML Chargeback
+- xml Event: XML Evento
 
 search: true
 ---
@@ -34,31 +37,20 @@ O arquivo adota o modelo Previsão-Liquidação, diferente do que é praticado n
 
 As requisições devem ser enviadas para o serviço de conciliação utilizando o método **GET** para o endpoint `https://conciliation.stone.com.br/conciliation-file/{dataReferencia}` ou `https://conciliation.stone.com.br/conciliation-file/v{numeroversao}/{dataReferencia}`, onde `{dataReferencia}` é a data em que as transações foram capturadas, no formato yyyyMMdd e {numeroversao} o número da versão do layout desejado.
 
+**EndPoint**: "https://conciliation.stone.com.br/conciliation-file/v2/yyyyMMdd"
+
 Por se tratar de informações sigilosas para a empresa, tanto a requisição quanto a resposta trafegam em uma camada segura criptografada e as requisições precisam, necessariamente, estar autenticadas. Essa autenticação consiste no envio de um campo de cabeçalho HTTP `Authorization` contendo a chave de afiliação da loja `AffiliationKey`.
 
 É possível, ainda, que o volume de operações e eventos seja relativamente grande. Para agilizar a transferência do arquivo, é possível solicitá-lo de forma compactada. Caso seja necessário que o arquivo esteja compactado, o sistema conciliador deve incluir o campo de cabeçalho HTTP `Accept-Encoding: gzip` na requisição ao serviço.
 
-
-- Layout v2
-
-```shell
-
-curl \
--H "Authorization: affiliation-key" \
--H "Accept-Encoding: gzip" \
-"https://conciliation.stone.com.br/conciliation-file/v2/yyyyMMdd"
-
-```
-<aside class="success"> Pré-requisitos:
+<aside class="success"> <b>Pré-requisitos:</b>
 
 <ol>
+<li>Conexão com a internet</li>
 
-<li><b>Conexão com a internet</b></li>
+<li>Protocolo de comunicação TLS 1.2</li>
 
-<li><b>Protocolo de comunicação TLS 1.2</b></li>
-
-<li><b>AffiliationKey (AK)</b></li>
-
+<li>AffiliationKey (AK)</li>
 </ol>
 
 </aside>
@@ -124,7 +116,7 @@ Nó filho de **FinancialTransactions** que contém as informações referentes �
 | **Installments**| Container | ###### | Contém as parcelas da transação. |
 
 
-<aside class="notice"> Informativo (Transaction)
+<aside class="notice"> <b>Informativo (Transaction)</b>
 
 	<ul>
 
@@ -175,10 +167,10 @@ Nó filho de **Cancellations** que contém as informações sobre o cancelamento
 | **Billing*** | Collection | ###### | Lista de cobranças relativa ao cancelamento* |
 
 
-<aside class="notice"> Informativo (Cancellation)
+<aside class="notice"> <b>Informativo (Cancellation)</b>
 
 	<ul>
-		<li><b>* Aparece apenas se a transação não tiver sido cancelada no mesmo dia da captura</b></li>
+		<li>* Aparece apenas se a transação não tiver sido cancelada no mesmo dia da captura.</li>
 	</ul>
 
 </aside>
@@ -212,17 +204,17 @@ Nó filho de **Installments** que contém as informações sobre as parcelas de 
 | **Chargeback**^ | Container | ###### | Contém chargebacks relativos a parcela** |
 | **ChargebackRefund**^^ | Container | ###### | Contém estornos de chargeback relativos a parcela*** |
 
-<aside class="notice"> Informativo (Installment)
+<aside class="notice"> <b>Informativo (Installment)</b>
 
 <ul>
 
- <li><b>* Elemento que aparecerá apenas quando a parcela não estiver suspensa por Chargeback</b></li>
+ <li>* Elemento que aparecerá apenas quando a parcela não estiver suspensa por Chargeback</li>
 
- <li><b>** Elemento que aparecerá apenas nas parcelas posteriores à parcela que sofreu Chargeback</b></li>
+ <li>** Elemento que aparecerá apenas nas parcelas posteriores à parcela que sofreu Chargeback</li>
 
- <li><b>^ Elemento só aparece quando houver `Chargeback`</b></li>
+ <li>^ Elemento só aparece quando houver <em>Chargeback</em></li>
  
- <li><b>^^ Elemento só aparece quando houver `Chargeback` ou `Liquidação do Chargeback` ou `Reapresentação de Chargeback`</b></li>
+ <li>^^ Elemento só aparece quando houver <em>Chargeback</em> ou <em>Liquidação do Chargeback</em> ou <em>Reapresentação de Chargeback</em></li>
 
 </ul>
 
@@ -294,13 +286,13 @@ Nó filho de **FinancialTransactionsAccounts** que contém as informações refe
 | **Cancellations*** | Container | # | Igual ao descrito em [FinancialTransactions](#FinancialTransactions), com algumas mudanças |
 | **Installments***| Container | # | Igual ao descrito em [FinancialTransactions](#FinancialTransactions), com algumas mudanças |
 
-<aside class="notice"> Informativo (Transaction)
+<aside class="notice"> <b>Informativo (Transaction)</b>
 <ul>
-<li><b>* Elemento que aparecerá quando houver o desconto de um cancelamento &lt;CancellationCharges&gt;1&lt;CancellationCharges&gt;</b></li>
+<li>* Elemento que aparecerá quando houver o desconto de um cancelamento <em>&lt;CancellationCharges&gt;1&lt;CancellationCharges&gt;</em></li>
 </ul>
 </aside>
 
- <aside class="warning"> Alerta!!!
+ <aside class="warning"> <b>Alerta!!!</b>
 <ul>
 
 <li><b>É importante armazenar as informações como IssuerAuthorizationCode, CardNumber, BrandId e etc, durante o evento de captura. Pois quando a transação aparecer em FinancialTransactionsAccounts (liquidação), virá apenas com os NSU para que possa identificar qual transação está sendo paga/descontada.</b></li>
@@ -357,17 +349,17 @@ Nó filho de **Installments** que contém as informações sobre as parcelas de 
 | **Chargeback**^ | Container | # | Referência do elemento de pagamento (Payments) no qual a liquidação dessa parcela foi incluida |
 | **ChargebackRefund**^^ | Container | # | Referência do elemento de pagamento (Payments) no qual a liquidação dessa parcela foi incluida |
 
-<aside class="notice">  Informativo (Installment | FinancialTransactionsAccounts)
+<aside class="notice">  <b>Informativo (Installment | FinancialTransactionsAccounts)</b>
 
 <ul>
 
-<li><b>* Elementos que só aparecem quando houver antecipação</b></li>
+<li>* Elementos que só aparecem quando houver antecipação</li>
 
-<li><b>** Elemento que só aparece quando houve Chargeback</b></li>
+<li>** Elemento que só aparece quando houve Chargeback</li>
 
-<li><b>^ Elemento que só aparece quando houve Chargeback e Reapresentação de Chargeback</b></li>
+<li>^ Elemento que só aparece quando houve Chargeback e Reapresentação de Chargeback</li>
 
-<li><b>^^ Aparece apenas nas parcelas posteriores à parcela que sofreu chargeback</b></li>
+<li>^^ Aparece apenas nas parcelas posteriores à parcela que sofreu chargeback</li>
 
 </ul>
 
@@ -410,13 +402,13 @@ Nó filho de **Payments**, representa um pagamento efetuado para o lojista.
 | LastNegativeAmount** | Float | 24 | Valor negativo que o cliente tem pendente com a Stone |
 | FavoredBankAccount | Container | # | Informações bancarias da conta favorecida pelo pagamento |
 
-<aside class="notice"> Informativo (Payments)
+<aside class="notice"> <b>Informativo (Payments)</b>
 
-O nó **Payment** aparecerá apenas quando for feito um depósito na conta. Não aparecerá em situações em que os descontos forem maior que os recebíveis do dia.
+O nó <b>Payment</b> aparecerá apenas quando for feito um depósito na conta. Não aparecerá em situações em que os descontos forem maior que os recebíveis do dia.
 <ul>
-<li><b>* Quando o valor desse elemento for negativo, o valor total pago no dia ao lojista <em>TotalAmount</em> será zero.</b></li>
+<li>* Quando o valor desse elemento for negativo, o valor total pago no dia ao lojista <em>TotalAmount</em> será zero.</li>
 
-<li><b>** O valor negativo pendente será descontado do valor total que o lojista tem para receber, caso esse total seja positivo <em>TotalFinancialAccountsAmount</em>.</b></li>
+<li>** O valor negativo pendente será descontado do valor total que o lojista tem para receber, caso esse total seja positivo <em>TotalFinancialAccountsAmount</em>.</li>
 
 </ul>
 </aside>
@@ -454,10 +446,10 @@ Descrição dos atributos dentro de **Trailer**
 
 Toda transação nova ou acontecimento de uma transação já existente será demonstrada no arquivo de diferentes maneiras. Abaixo demonstrarei os principais fluxos:
 
-<aside class="success"> Captura
+<aside class="success"> <b>Captura</b>
 
 <ul>
-<li>Quando uma transação é realizada, um nó `Transaction` referente à ela aparecerá sob `FinancialTransactions` no arquivo de conciliação desse dia com o evento `Captures` com o valor 1 em `Event`, dentro do nó transaction se encontrará todas as parcelas dessa transação representadas pelos nós `Installment`.</li>
+<li>Quando uma transação é realizada, um nó <em>Transaction</em> referente à ela aparecerá sob <em>FinancialTransactions</em> no arquivo de conciliação desse dia com o evento <em>Captures</em> com o valor 1 em <em>Event</em>, dentro do nó transaction se encontrará todas as parcelas dessa transação representadas pelos nós <em>Installment</em>.</li>
 </ul>
 
 </aside>
@@ -466,9 +458,10 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 `Captura (10/05) > Liquidação da Parcela (09/06)`
 
-> Captura
 
-```xml
+
+```xml Captura
+<!-- Captura -->
 
 <FinancialTransactions>
   ...
@@ -512,9 +505,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 ``` 
 
-> Liquidação Parcela 1
-
-```xml
+```xml Liquidação
+<!-- Liquidação Parcela 1-->
 
 <FinancialTransactionsAccounts>
   ...
@@ -567,7 +559,7 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 <ul>
 
-<li>Quando uma transação é cancelada no dia de referência, um nó `Transaction` referente a ela aparecerá sob `FinancialTransactions` no arquivo de conciliação desse dia com o evento `Cancellations` com o valor 1 em `Event`, dentro do nó `Transaction` aparecerá um nó chamado `Cancellations` que descreve cada cancelamento (vários se houver cancelamentos parciais, ou apenas um se for cancelamento total)</li>
+<li>Quando uma transação é cancelada no dia de referência, um nó <em>Transaction</em> referente a ela aparecerá sob <em>FinancialTransactions</em> no arquivo de conciliação desse dia com o evento <em>Cancellations</em> com o valor 1 em <em>Event</em>, dentro do nó <em>Transaction</em> aparecerá um nó chamado <em>Cancellations</em> que descreve cada cancelamento (vários se houver cancelamentos parciais, ou apenas um se for cancelamento total)</li>
 
 </ul>
 
@@ -575,11 +567,11 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 ### Exemplos de ciclos de vida da cancelamento:
 
-> `Captura (10/05) > Liquidação da Parcela (09/06) > Cancelamento (10/06) > Desconto do Cancelamento (12/06)`
+`Captura (10/05) > Liquidação da Parcela (09/06) > Cancelamento (10/06) > Desconto do Cancelamento (12/06)`
 
-> Captura
 
-```xml
+```xml Captura
+<!-- Captura-->
 
 <FinancialTransactions>
   ...
@@ -623,9 +615,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 ```
 
-> Liquidação Parcela 1
-
-```xml
+```xml Liquidação
+<!-- Liquidação Parcela 1-->
 
 <FinancialTransactionsAccounts>
   ...
@@ -674,9 +665,9 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 ```
 
-> Cancelamento
 
-```xml
+```xml Cancelamento
+<!-- Cancelamento-->
 
 <FinancialTransactions>
   ...
@@ -713,9 +704,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 <FinancialTransactions>
 ```
 
-> Liquidação Cancelamento
-
-```xml
+```xml Liquidação
+<!-- Liquidação Cancelamento-->
 
 <FinancialTransactionsAccounts>
   ...
@@ -754,9 +744,9 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 `Captura (10/05) > Liquidação da Parcela (09/06) > Cancelamento (10/06) > Desconto do Cancelamento (12/06)`
 
-> Captura
 
-```xml
+```xml Captura
+<!-- Captura-->
 
 <FinancialTransactions>
   ...
@@ -811,9 +801,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </FinancialTransactions>
 ```
 
-> Liquidação Parcela 1
-
-```xml
+```xml Liquidação
+<!-- Liquidação Parcela 1-->
 
 <FinancialTransactionsAccounts>
   ...
@@ -861,9 +850,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </Payments>
 ```
 
-> Cancelamento
-
-```xml
+```xml Cancelamento
+<!-- Cancelamento-->
 
 <FinancialTransactions>
   ...
@@ -920,9 +908,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 <FinancialTransactions>
 ```
 
-> Desconto do Cancelamento
-
-```xml
+```xml Cancelamento
+<!-- Desconto do Cancelamento-->
 
 <FinancialTransactionsAccounts>
   ...
@@ -997,11 +984,11 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 <FinancialTransactionsAccounts>
 ```
 
-<aside class="notice"> Aceleração de Parcelas
+<aside class="notice"> <b>Aceleração de Parcelas</b>
 
 <ul>
 
-<li>Acima podemos ver o exemplo de um fluxo de **Aceleração de parcelas**. Ou seja, se eu tenho uma transação de 2 parcelas, e após a liquidação da primeira parcela é enviado um cancelamento, no dia do desconto do cancelamento, é feita a aceleração da liquidação das parcelas restantes para liberar o saldo do cliente. Perceba que a PaymentDate no dia 12/06 foi antecipada.</li>
+<li>Acima podemos ver o exemplo de um fluxo de <b>Aceleração de parcelas<b>. Ou seja, se eu tenho uma transação de 2 parcelas, e após a liquidação da primeira parcela é enviado um cancelamento, no dia do desconto do cancelamento, é feita a aceleração da liquidação das parcelas restantes para liberar o saldo do cliente. Perceba que a PaymentDate no dia 12/06 foi antecipada.</li>
 
 </ul>
 
@@ -1009,9 +996,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 `Captura (10/05) > Cancelamento (10/05)`
 
-> Captura + Cancelamento
-
-```xml
+```xml Captura
+<!-- Captura + Cancelamento-->
 
 <FinancialTransactions>
   ...
@@ -1053,21 +1039,21 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </FinancialTransactions>
 ```
 
-<aside class="notice"> Captura + Cancelamento
+<aside class="notice"> <b>Captura + Cancelamento</b>
 
 <ul>
 
-<li>Repare que quando o cancelamento é feito no mesmo dia da captura, o nó `Billing` não aparece, ou seja, não é agendado uma data de desconto do cancelamento.</li>
+<li>Repare que quando o cancelamento é feito no mesmo dia da captura, o nó <em>Billing</em> não aparece, ou seja, não é agendado uma data de desconto do cancelamento.</li>
 
 </ul>
 
 </aside>
 
-<aside class="success"> Chargeback
+<aside class="success"> <b>Chargeback</b>
 
 <ul>
 
-<li>Quando uma transação sofre chargeback ela aparece tanto em `FinancialTransactions` no dia em que sofreu o chargeback, e em `FinancialTransactionAccounts` no dia em que foi descontada.</li>
+<li>Quando uma transação sofre chargeback ela aparece tanto em <em>FinancialTransactions</em> no dia em que sofreu o chargeback, e em <em>FinancialTransactionAccounts</em> no dia em que foi descontada.</li>
 
 </ul>
 
@@ -1077,9 +1063,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 `Captura (10/05) > Liquidação da Parcela (09/06) > Chargeback + Desconto do Chargeback (10/06)`
 
-> Captura
-
-```xml
+```xml Captura
+<!-- Captura-->
 
 <FinancialTransactions>
   ...
@@ -1122,9 +1107,9 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </FinancialTransactions>
 ```
 
-> Liquidação da Parcela
 
-```xml
+```xml Liquidação
+<!-- Liquidação da Parcela-->
 
 <FinancialTransactionsAccounts>
   ...
@@ -1172,9 +1157,9 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </Payments>
 ```
 
-> Chargeback + Desconto Chargeback
 
-```xml
+```xml Chargeback
+<!-- Chargeback + Desconto Chargeback-->
 
 <FinancialTransactions>
   ...
@@ -1214,10 +1199,10 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 <FinancialTransactions>
 ```
 
-<aside class="notice">  Chargeback após liquidação da parcela
+<aside class="notice">  <b>Chargeback após liquidação da parcela</b>
 <ul>
 
-<li>Caso o chargeback ocorra após a liquidação da parcela, ele reaparecerá dentro de Installment e sua liquidação será imediata, sem a necessidade de aparecer novamente dentro de `FinancialTransactionsAccounts`.</li>
+<li>Caso o chargeback ocorra após a liquidação da parcela, ele reaparecerá dentro de <em>Installment</em> e sua liquidação será imediata, sem a necessidade de aparecer novamente dentro de <em>FinancialTransactionsAccounts</em>.</li>
 
 </ul>
 
@@ -1225,9 +1210,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 `Captura (10/05) > Chargeback (20/05) > Liquidação Parcela + Desconto do Chargeback (09/06)`
 
-> Captura
-
-```xml
+```xml Captura
+<!-- Captura--> 
 
 <FinancialTransactions>
   ...
@@ -1269,9 +1253,9 @@ Toda transação nova ou acontecimento de uma transação já existente será de
   ...
 </FinancialTransactions>
 ```
-> Chargeback
 
-```xml
+```xml Chargeback
+<!-- Chargeback-->
 
 <FinancialTransactions>
   ...
@@ -1311,9 +1295,9 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </FinancialTransactions>
 ```
 
-> Liquidação Parcela + Desconto Chargeback
 
-```xml
+```xml Liquidação
+<!-- Liquidação Parcela + Desconto Chargeback--> 
 
 <FinancialTransactionsAccounts>
   ...
@@ -1354,10 +1338,10 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 <FinancialTransactionsAccounts>
 ```
 
-<aside class="notice">  Chargeback antes da liquidação da parcela
+<aside class="notice">  <b>Chargeback antes da liquidação da parcela</b>
 <ul>
 
-<li>Caso o Chargeback ocorra antes da liquidação da parcela, o desconto virá no dia do pagamento da parcela, como no exemplo acima. Como o pagamento é igual ao desconto, os dois se anulam.</li>
+<li>Caso o Chargeback ocorra antes da liquidação da parcela, o desconto virá no dia do pagamento da parcela, como no exemplo ao lado. Como o pagamento é igual ao desconto, os dois se anulam.</li>
 
 </ul>
 
@@ -1365,9 +1349,9 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 `Captura (10/05) > Chargeback (20/05) > Liquidação Parcela + Desconto do Chargeback (09/06)`
 
-> Captura
 
-```xml
+```xml Captura
+<!-- Captura--> 
 
 <FinancialTransactions>
   ...
@@ -1421,9 +1405,9 @@ Toda transação nova ou acontecimento de uma transação já existente será de
   ...
 </FinancialTransactions>
 ```
-> Chargeback
 
-```xml
+```xml Chargeback
+<!-- Chargeback-->
 
 <FinancialTransactions>
   ...
@@ -1474,9 +1458,10 @@ Toda transação nova ou acontecimento de uma transação já existente será de
   ...
 </FinancialTransactions>
 ```
-> Liquidação Parcela + Desconto do Chargeback
 
-```xml
+```xml Liquidação
+<!-- Liquidação Parcela + Desconto do Chargeback-->
+
 
 <FinancialTransactionsAccounts>
   ...
@@ -1516,7 +1501,7 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 <FinancialTransactionsAccounts>
 ```
 
-<aside class="notice">  Parcelas suspensas por Chargeback
+<aside class="notice">  <b>Parcelas suspensas por Chargeback</b>
 
 <ul>
 
@@ -1527,11 +1512,11 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </aside>
 
 
-<aside class="success">  ChargebackRefund
+<aside class="success">  <b>ChargebackRefund<b>
 
 <ul>
 
-<li>Se uma parcela é reapresentada após chargeback ela aparecerá em `FinancialTransaction` no dia em que foi realizado a reapresentação e em `FinancialTransactionsAccounts` no dia que for pago ao lojista a reapresentação.</li>
+<li>Se uma parcela é reapresentada após chargeback ela aparecerá em <em>FinancialTransaction</em> no dia em que foi realizado a reapresentação e em <em>FinancialTransactionsAccounts</em> no dia que for pago ao lojista a reapresentação.</li>
 
 </ul>
 
@@ -1539,11 +1524,10 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 ## Exemplos de ciclos de vida do ChargebackRefund:
 
-> `Captura (10/05) > Chargeback (20/05) > Liquidação Parcela + Desconto do Chargeback (09/06) > ChargebackRefund (10/06) > Liquidação ChargebackRefund (11/06)`
+`Captura (10/05) > Chargeback (20/05) > Liquidação Parcela + Desconto do Chargeback (09/06) > ChargebackRefund (10/06) > Liquidação ChargebackRefund (11/06)`
 
-> Captura
-
-```xml
+```xml Captura
+<!-- Captura-->
 
 <FinancialTransactions>
   ...
@@ -1585,9 +1569,9 @@ Toda transação nova ou acontecimento de uma transação já existente será de
   ...
 </FinancialTransactions>
 ```
-> Chargeback
 
-```xml
+```xml Chargeback
+<!-- Chargeback-->
 
 <FinancialTransactions>
   ...
@@ -1627,9 +1611,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </FinancialTransactions>
 ```
 
-> Liquidação Parcela + Desconto Chargeback
-
-```xml
+```xml Liquidação
+<!-- Liquidação Parcela + Desconto Chargeback-->
 
 <FinancialTransactionsAccounts>
   ...
@@ -1670,9 +1653,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 <FinancialTransactionsAccounts>
 ```
 
-> ChargebackRefund
-
-```xml
+```xml Chargeback
+<!-- ChargebackRefund-->
 
 <FinancialTransactions>
   ...
@@ -1712,9 +1694,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </FinancialTransactions>
 ```
 
-> Liquidação ChargebackRefund
-
-```xml
+```xml Liquidação
+<!-- Liquidação ChargebackRefund-->
 
 <FinancialTransactionsAccounts>
   ...
@@ -1754,17 +1735,17 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </FinancialTransactionsAccounts>
 ```
 
-<aside class="warning"> Atenção 
+<aside class="warning"> <b>Atenção</b> 
 
 <ul>
 
-<li>Se com uma mesma transação ocorrer mais de um evento no mesmo dia, apenas um nó `Transaction` é criado para essa transação e as diversas modificações estarão descritas no nó `Events` (Ex: Uma transação capturada e cancelada no mesmo dia aparecerá com os nós `Captures` e `Cancellations` com o valor diferente de zero)</li>
+<li>Se com uma mesma transação ocorrer mais de um evento no mesmo dia, apenas um nó <em>Transaction</em> é criado para essa transação e as diversas modificações estarão descritas no nó <em>Events</em> (Ex: Uma transação capturada e cancelada no mesmo dia aparecerá com os nós <em>Captures</em> e <em>Cancellations</em> com o valor diferente de zero)</li>
 
 </ul>
 
 </aside>
 
-<aside class="success"> Event
+<aside class="success"> <b>Event</b>
 
 <ul>
 
@@ -1774,15 +1755,14 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 </aside>
 
-Quando ocorre um lançamento de um evento financeiro para o cliente um nó `event` é criado em `FinancialEvents`, no dia em que esse evento for pago o mesmo nó aparecerá sob `FinancialEventsAccounts`.
+Quando ocorre um lançamento de um evento financeiro para o cliente um nó `Event` é criado em `FinancialEvents`, no dia em que esse evento for pago o mesmo nó aparecerá sob `FinancialEventsAccounts`.
 
-> Exemplos de ciclos de vida do ChargebackRefund:
+## Exemplos de ciclos de vida do ChargebackRefund:
 
-> `Evento (10/05) > Liquidação Evento (20/05)`
+`Evento (10/05) > Liquidação Evento (20/05)`
 
-> Event
-
-```xml
+```xml Event
+<!-- Event-->
 
 <FinancialEvents>
   ...
@@ -1797,9 +1777,9 @@ Quando ocorre um lançamento de um evento financeiro para o cliente um nó `even
 </FinancialEvents>
 
 ```
-> Liquidação Evento
 
-```xml
+```xml Liquidação
+<!-- Liquidação Evento--> 
 
 <FinancialEventsAccounts>
   ...
@@ -1813,11 +1793,11 @@ Quando ocorre um lançamento de um evento financeiro para o cliente um nó `even
   ...
 </FinancialEventsAccounts>
 ```
-## Exemplo de Layout v2
 
 ## Exemplo de Arquivo Completo 
 
-```xml
+```xml shell
+<!-- Arquivo Completo-->
 
 <Conciliation>
     <Header>
@@ -2034,7 +2014,6 @@ Quando ocorre um lançamento de um evento financeiro para o cliente um nó `even
 </Conciliation>
 
 ```
-
 # Apêndice
 
 ## AccountType

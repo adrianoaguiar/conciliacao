@@ -3,12 +3,12 @@ title: Conciliação Stone
 
 language_tabs:
 
-- xml shell: XML
-- xml Captura: XML Captura
-- xml Liquidação: XML Liquidação
-- xml Cancelamento: XML Cancelamento
-- xml Chargeback: XML Chargeback
-- xml Event: XML Evento
+- xml_shell: XML
+- xml_captura: XML Captura
+- xml_liquidacao: XML Liquidação
+- xml_cancelamento: XML Cancelamento
+- xml_chargeback: XML Chargeback
+- xml_evento: XML Evento
 
 search: true
 ---
@@ -460,7 +460,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 
 
-```xml Captura
+```xml_captura
+
 <!-- Captura -->
 
 <FinancialTransactions>
@@ -505,7 +506,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 ``` 
 
-```xml Liquidação
+```xml_liquidacao
+
 <!-- Liquidação Parcela 1-->
 
 <FinancialTransactionsAccounts>
@@ -570,7 +572,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 `Captura (10/05) > Liquidação da Parcela (09/06) > Cancelamento (10/06) > Desconto do Cancelamento (12/06)`
 
 
-```xml Captura
+```xml_captura
+
 <!-- Captura-->
 
 <FinancialTransactions>
@@ -615,7 +618,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 ```
 
-```xml Liquidação
+```xml_liquidacao
+
 <!-- Liquidação Parcela 1-->
 
 <FinancialTransactionsAccounts>
@@ -666,7 +670,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 ```
 
 
-```xml Cancelamento
+```xml_cancelamento
+
 <!-- Cancelamento-->
 
 <FinancialTransactions>
@@ -704,7 +709,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 <FinancialTransactions>
 ```
 
-```xml Liquidação
+```xml_liquidacao
+
 <!-- Liquidação Cancelamento-->
 
 <FinancialTransactionsAccounts>
@@ -745,7 +751,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 `Captura (10/05) > Liquidação da Parcela (09/06) > Cancelamento (10/06) > Desconto do Cancelamento (12/06)`
 
 
-```xml Captura
+```xml_captura
+
 <!-- Captura-->
 
 <FinancialTransactions>
@@ -801,7 +808,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </FinancialTransactions>
 ```
 
-```xml Liquidação
+```xml_liquidacao
+
 <!-- Liquidação Parcela 1-->
 
 <FinancialTransactionsAccounts>
@@ -850,7 +858,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </Payments>
 ```
 
-```xml Cancelamento
+```xml_cancelamento
+
 <!-- Cancelamento-->
 
 <FinancialTransactions>
@@ -996,7 +1005,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 `Captura (10/05) > Cancelamento (10/05)`
 
-```xml Captura
+```xml_captura
+
 <!-- Captura + Cancelamento-->
 
 <FinancialTransactions>
@@ -1063,7 +1073,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 `Captura (10/05) > Liquidação da Parcela (09/06) > Chargeback + Desconto do Chargeback (10/06)`
 
-```xml Captura
+```xml_captura
+
 <!-- Captura-->
 
 <FinancialTransactions>
@@ -1108,7 +1119,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 ```
 
 
-```xml Liquidação
+```xml_liquidacao
+
 <!-- Liquidação da Parcela-->
 
 <FinancialTransactionsAccounts>
@@ -1158,7 +1170,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 ```
 
 
-```xml Chargeback
+```xml_chargeback
+
 <!-- Chargeback + Desconto Chargeback-->
 
 <FinancialTransactions>
@@ -1210,7 +1223,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 `Captura (10/05) > Chargeback (20/05) > Liquidação Parcela + Desconto do Chargeback (09/06)`
 
-```xml Captura
+```xml_captura
+
 <!-- Captura--> 
 
 <FinancialTransactions>
@@ -1254,7 +1268,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </FinancialTransactions>
 ```
 
-```xml Chargeback
+```xml_chargeback
+
 <!-- Chargeback-->
 
 <FinancialTransactions>
@@ -1296,7 +1311,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 ```
 
 
-```xml Liquidação
+```xml_liquidacao
+
 <!-- Liquidação Parcela + Desconto Chargeback--> 
 
 <FinancialTransactionsAccounts>
@@ -1350,7 +1366,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 `Captura (10/05) > Chargeback (20/05) > Liquidação Parcela + Desconto do Chargeback (09/06)`
 
 
-```xml Captura
+```xml_captura
+
 <!-- Captura--> 
 
 <FinancialTransactions>
@@ -1406,7 +1423,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </FinancialTransactions>
 ```
 
-```xml Chargeback
+```xml_chargeback
+
 <!-- Chargeback-->
 
 <FinancialTransactions>
@@ -1459,7 +1477,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </FinancialTransactions>
 ```
 
-```xml Liquidação
+```xml_liquidacao
+
 <!-- Liquidação Parcela + Desconto do Chargeback-->
 
 
@@ -1526,7 +1545,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 
 `Captura (10/05) > Chargeback (20/05) > Liquidação Parcela + Desconto do Chargeback (09/06) > ChargebackRefund (10/06) > Liquidação ChargebackRefund (11/06)`
 
-```xml Captura
+```xml_captura
+
 <!-- Captura-->
 
 <FinancialTransactions>
@@ -1570,7 +1590,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </FinancialTransactions>
 ```
 
-```xml Chargeback
+```xml_chargeback
+
 <!-- Chargeback-->
 
 <FinancialTransactions>
@@ -1611,7 +1632,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </FinancialTransactions>
 ```
 
-```xml Liquidação
+```xml_liquidacao
+
 <!-- Liquidação Parcela + Desconto Chargeback-->
 
 <FinancialTransactionsAccounts>
@@ -1653,7 +1675,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 <FinancialTransactionsAccounts>
 ```
 
-```xml Chargeback
+```xml_chargeback
+
 <!-- ChargebackRefund-->
 
 <FinancialTransactions>
@@ -1694,7 +1717,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 </FinancialTransactions>
 ```
 
-```xml Liquidação
+```xml_liquidacao
+
 <!-- Liquidação ChargebackRefund-->
 
 <FinancialTransactionsAccounts>
@@ -1761,7 +1785,8 @@ Quando ocorre um lançamento de um evento financeiro para o cliente um nó `Even
 
 `Evento (10/05) > Liquidação Evento (20/05)`
 
-```xml Event
+```xml_evento
+
 <!-- Event-->
 
 <FinancialEvents>
@@ -1778,7 +1803,8 @@ Quando ocorre um lançamento de um evento financeiro para o cliente um nó `Even
 
 ```
 
-```xml Liquidação
+```xml_liquidacao
+
 <!-- Liquidação Evento--> 
 
 <FinancialEventsAccounts>
@@ -1796,7 +1822,8 @@ Quando ocorre um lançamento de um evento financeiro para o cliente um nó `Even
 
 ## Exemplo de Arquivo Completo 
 
-```xml shell
+```xml_shell
+
 <!-- Arquivo Completo-->
 
 <Conciliation>

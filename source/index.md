@@ -917,7 +917,8 @@ Toda transação nova ou acontecimento de uma transação já existente será de
 <FinancialTransactions>
 ```
 
-```xml Cancelamento
+```xml_cancelamento
+
 <!-- Desconto do Cancelamento-->
 
 <FinancialTransactionsAccounts>

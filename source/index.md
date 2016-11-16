@@ -4,11 +4,6 @@ title: Conciliação Stone
 language_tabs:
 
 - xml: XML
-- xml: XML Captura
-- xml: XML Liquidação
-- xml: XML Cancelamento
-- xml: XML Chargeback
-- xml: XML Evento
 
 search: true
 ---
